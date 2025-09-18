@@ -1,0 +1,256 @@
+'use client'
+
+import { useState } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useGoogleLogin } from '@react-oauth/google'
+import API from '@/lib/api'
+import { toast } from 'react-toastify'
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaTrophy, FaBrain, FaRocket, FaSignInAlt } from 'react-icons/fa'
+
+const LoginPage = () => {
+  const [identifier, setIdentifier] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [referralCode, setReferralCode] = useState('')
+  const router = useRouter()
+
+  // Google OAuth Login
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (response) => {
+      try {
+        console.log('🔍 Google OAuth process started...')
+        
+        // Get user info from Google
+        const userInfo = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${response.access_token}` }
+        }).then(res => res.json())
+        
+        console.log('📊 Google user info:', userInfo)
+        
+        // Send to backend for authentication with referral code
+        const authResponse = await API.googleAuth({
+          googleId: userInfo.sub,
+          email: userInfo.email,
+          name: userInfo.name,
+          picture: userInfo.picture,
+          ...(referralCode && { referralCode: referralCode.toUpperCase() })
+        })
+        
+        if (authResponse.success) {
+          console.log('✅ Google login successful, processing user data...')
+          
+          localStorage.setItem('userInfo', JSON.stringify(authResponse.user))
+          localStorage.setItem('token', authResponse.token)
+          
+          if (authResponse.user.role === 'admin') {
+            console.log('🚀 Redirecting to admin dashboard...')
+            router.push('/admin/dashboard')
+          } else {
+            console.log('🚀 Redirecting to student profile...')
+            router.push('/home')
+          }
+          
+          toast.success('Welcome back!')
+        }
+      } catch (error) {
+        console.error('❌ Google login error:', error)
+        toast.error(error.response?.data?.message || 'Google login failed. Please try again.')
+      }
+    },
+    onError: (error) => {
+      console.error('❌ Google OAuth error:', error)
+      toast.error('Google login failed. Please try again.')
+    }
+  })
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setIsLoading(true)
+
+    try {
+      const response = await API.login({
+        identifier,
+        password,
+        ...(referralCode && { referralCode: referralCode.toUpperCase() })
+      })
+
+      if (response.success) {
+        localStorage.setItem('userInfo', JSON.stringify(response.user))
+        localStorage.setItem('token', response.token)
+        
+        if (response.user.role === 'admin') {
+          router.push('/admin/dashboard')
+        } else {
+          router.push('/home')
+        }
+        
+        toast.success('Welcome back!')
+      }
+    } catch (error) {
+      console.error('Login error:', error)
+      toast.error(error.response?.data?.message || 'Login failed. Please check your credentials.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center px-4">
+      <div className="max-w-md w-full">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <div className="w-20 h-20 mx-auto mb-4">
+            <img src="/logo.png" alt="SUBG QUIZ" className="w-full h-full object-contain" />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            Welcome Back!
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300">
+            Sign in to continue your quiz journey
+          </p>
+        </div>
+
+        {/* Login Form */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Email/Username Field */}
+            <div>
+              <label htmlFor="identifier" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Email or Username
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FaEnvelope className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="identifier"
+                  type="text"
+                  required
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter your email or username"
+                />
+              </div>
+            </div>
+
+            {/* Password Field */}
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FaLock className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="block w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter your password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                >
+                  {showPassword ? (
+                    <FaEyeSlash className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  ) : (
+                    <FaEye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Referral Code Field (Optional) */}
+            <div>
+              <label htmlFor="referralCode" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Referral Code (Optional)
+              </label>
+              <input
+                id="referralCode"
+                type="text"
+                value={referralCode}
+                onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                className="block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                placeholder="Enter referral code"
+              />
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            >
+              {isLoading ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              ) : (
+                <>
+                  <FaSignInAlt className="mr-2" />
+                  Sign In
+                </>
+              )}
+            </button>
+
+            {/* Google Login Button */}
+            <button
+              type="button"
+              onClick={() => googleLogin()}
+              className="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold py-3 px-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-300 flex items-center justify-center"
+            >
+              <img src="/google.svg" alt="Google" className="w-5 h-5 mr-2" />
+              Continue with Google
+            </button>
+          </form>
+
+          {/* Links */}
+          <div className="mt-6 text-center space-y-2">
+            <Link
+              href="/forgot-password"
+              className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+            >
+              Forgot your password?
+            </Link>
+            <div className="text-sm text-gray-600 dark:text-gray-300">
+              Don't have an account?{' '}
+              <Link
+                href="/register"
+                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium"
+              >
+                Sign up here
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Features */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
+            <FaTrophy className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
+            <h3 className="font-semibold text-gray-900 dark:text-white">Win Prizes</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">Compete and win amazing rewards</p>
+          </div>
+          <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
+            <FaBrain className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+            <h3 className="font-semibold text-gray-900 dark:text-white">Learn & Grow</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">Expand your knowledge daily</p>
+          </div>
+          <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
+            <FaRocket className="w-8 h-8 text-purple-500 mx-auto mb-2" />
+            <h3 className="font-semibold text-gray-900 dark:text-white">Progress Fast</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">Level up through challenges</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default LoginPage
