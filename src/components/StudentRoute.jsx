@@ -18,7 +18,7 @@ export default function StudentRoute({ children }) {
 
     if (!isStudent()) {
       showError('Access denied. Student account required.')
-      router.push('/')
+      router.push('/home')
     }
   }, [router, showError])
 
@@ -46,7 +46,7 @@ export default function StudentRoute({ children }) {
             This page is only accessible to student accounts.
           </p>
           <button
-            onClick={() => router.push('/')}
+            onClick={() => router.push('/home')}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
           >
             Go Home

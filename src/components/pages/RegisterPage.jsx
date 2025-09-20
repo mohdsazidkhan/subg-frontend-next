@@ -1,36 +1,63 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useGoogleLogin } from '@react-oauth/google'
-import API from '@/lib/api'
+import API from '../../utils/api'
 import { toast } from 'react-toastify'
-import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaUser, FaPhone, FaSignInAlt } from 'react-icons/fa'
+import { FaUser, FaEnvelope, FaPhone, FaLock, FaEye, FaEyeSlash, FaTrophy, FaBrain, FaRocket } from 'react-icons/fa'
+import MonthlyRewardsInfo from '../MonthlyRewardsInfo'
+import MobileAppWrapper from '../MobileAppWrapper'
+import UnifiedNavbar from '../UnifiedNavbar'
+import UnifiedFooter from '../UnifiedFooter'
 
 const RegisterPage = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    username: '',
-    phone: '',
-    password: '',
-    confirmPassword: ''
-  })
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
+  const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [passwordStrength, setPasswordStrength] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
-  const [referralCode, setReferralCode] = useState('')
+  const [referralCode, setReferralCode] = useState("")
   const router = useRouter()
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
+  // Check if Google OAuth is available
+  const isGoogleOAuthAvailable = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && 
+    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID !== 'your_google_client_id_here'
+
+  const checkPasswordStrength = (password) => {
+    let strength = 0
+    if (password.length >= 8) strength += 1
+    if (/[a-z]/.test(password)) strength += 1
+    if (/[A-Z]/.test(password)) strength += 1
+    if (/[0-9]/.test(password)) strength += 1
+    if (/[@$!%*?&]/.test(password)) strength += 1
+    return strength
   }
 
-  // Google OAuth Login
+  const handlePasswordChange = (e) => {
+    const value = e.target.value
+    setPassword(value)
+    setPasswordStrength(checkPasswordStrength(value))
+  }
+
+  const getPasswordStrengthColor = () => {
+    if (passwordStrength <= 2) return 'text-red-500'
+    if (passwordStrength <= 3) return 'text-yellow-500'
+    if (passwordStrength <= 4) return 'text-yellow-500'
+    return 'text-green-500'
+  }
+
+  const getPasswordStrengthText = () => {
+    if (passwordStrength <= 2) return 'Weak'
+    if (passwordStrength <= 3) return 'Fair'
+    if (passwordStrength <= 4) return 'Good'
+    return 'Strong'
+  }
+
+  // Google OAuth Registration
   const googleLogin = useGoogleLogin({
     onSuccess: async (response) => {
       try {
@@ -43,7 +70,7 @@ const RegisterPage = () => {
         
         console.log('📊 Google user info:', userInfo)
         
-        // Send to backend for authentication with referral code
+        // Send to backend for registration with referral code
         const authResponse = await API.googleAuth({
           googleId: userInfo.sub,
           email: userInfo.email,
@@ -62,15 +89,17 @@ const RegisterPage = () => {
             console.log('🚀 Redirecting to admin dashboard...')
             router.push('/admin/dashboard')
           } else {
-            console.log('🚀 Redirecting to student profile...')
+            console.log('🚀 Redirecting to home page...')
             router.push('/home')
           }
           
-          toast.success('Welcome to SUBG QUIZ!')
+          toast.success('Welcome to SUBG QUIZ! 🎉')
+        } else {
+          toast.error(authResponse.message || 'Google registration failed')
         }
       } catch (error) {
         console.error('❌ Google registration error:', error)
-        toast.error(error.response?.data?.message || 'Google registration failed. Please try again.')
+        toast.error('Google registration failed. Please try again.')
       }
     },
     onError: (error) => {
@@ -79,30 +108,16 @@ const RegisterPage = () => {
     }
   })
 
-  const handleSubmit = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault()
     setIsLoading(true)
 
-    // Validation
-    if (formData.password !== formData.confirmPassword) {
-      toast.error('Passwords do not match')
-      setIsLoading(false)
-      return
-    }
-
-    if (formData.password.length < 6) {
-      toast.error('Password must be at least 6 characters long')
-      setIsLoading(false)
-      return
-    }
-
     try {
       const response = await API.register({
-        name: formData.name,
-        email: formData.email,
-        username: formData.username,
-        phone: formData.phone,
-        password: formData.password,
+        name,
+        email,
+        phone,
+        password,
         ...(referralCode && { referralCode: referralCode.toUpperCase() })
       })
 
@@ -116,10 +131,12 @@ const RegisterPage = () => {
           router.push('/home')
         }
         
-        toast.success('Welcome to SUBG QUIZ!')
+        toast.success('Welcome to SUBG QUIZ! 🎉')
+      } else {
+        toast.error(response.message || 'Registration failed')
       }
     } catch (error) {
-      console.error('Registration error:', error)
+      console.error('❌ Registration error:', error)
       toast.error(error.response?.data?.message || 'Registration failed. Please try again.')
     } finally {
       setIsLoading(false)
@@ -127,130 +144,181 @@ const RegisterPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center px-4 py-8">
-      <div className="max-w-md w-full">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="w-20 h-20 mx-auto mb-4">
-            <img src="/logo.png" alt="SUBG QUIZ" className="w-full h-full object-contain" />
+    <>
+      {/* Desktop Header */}
+      <UnifiedNavbar />
+      
+      <MobileAppWrapper title="Register">
+        <div className="min-h-screen flex items-center justify-center p-2 md:p-4 bg-subg-light dark:bg-subg-dark">
+      <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+        
+        {/* Left Side - Quiz Platform Info */}
+        <div className="hidden lg:block space-y-8">
+          <div className="text-center lg:text-left">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-gray-800 dark:text-gray-100">
+              Join the Quiz Revolution! 🚀
+            </h1>
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
+              Challenge your mind, compete with others, and become a quiz legend!
+            </p>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Join SUBG QUIZ
-          </h1>
-          <p className="text-gray-600 dark:text-gray-300">
-            Create your account and start your quiz journey
-          </p>
+
+          {/* Feature Cards */}
+          <div className="space-y-6">
+            <div className="flex items-center space-x-4 p-6 bg-white/80 dark:bg-gray-800/80 rounded-xl backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+              <div className="p-3 bg-gradient-to-r from-yellow-500 to-red-500 rounded-lg">
+                <FaBrain className="text-white text-2xl" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Level-Based Learning</h3>
+                <p className="text-gray-600 dark:text-gray-300">Progress through 11 exciting levels from Starter to Legend</p>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-4 p-6 bg-white/80 dark:bg-gray-800/80 rounded-xl backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+              <div className="p-3 bg-gradient-to-r from-green-500 to-teal-500 rounded-lg">
+                <FaTrophy className="text-white text-2xl" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Monthly Rewards System</h3>
+                <p className="text-gray-600 dark:text-gray-300">Top 3 eligible users at Level 10 win ₹9,999 each month</p>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-4 p-6 bg-white/80 dark:bg-gray-800/80 rounded-xl backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+              <div className="p-3 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg">
+                <FaRocket className="text-white text-2xl" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Live Competitions</h3>
+                <p className="text-gray-600 dark:text-gray-300">Participate in real-time quiz battles</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Monthly Rewards Information */}
+          <div className="mt-8">
+            <MonthlyRewardsInfo compact={true} />
+          </div>
         </div>
 
-        {/* Registration Form */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Name Field */}
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Full Name
+        {/* Right Side - Registration Form */}
+        <div className="w-full max-w-md mx-auto">
+          <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl shadow-2xl px-2 py-4 md:p-8 border border-white/20">
+            <div className="text-center mb-8">
+              <div className="w-10 lg:w-16 h-10 lg:h-16 bg-gradient-to-r from-yellow-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FaUser className="text-white text-2xl" />
+              </div>
+              <h2 className="text-xl lg:text-3xl font-bold text-gray-800 dark:text-white mb-2">
+                Create Account
+              </h2>
+              <p className="text-gray-600 dark:text-gray-300">
+                Start your quiz journey today!
+              </p>
+            </div>
+
+            {/* Referral Code Input */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Referral Code (optional)
               </label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 font-bold">#</span>
+                <input
+                  type="text"
+                  value={referralCode}
+                  onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-300 tracking-widest uppercase"
+                  placeholder="Enter referral code"
+                  maxLength={8}
+                />
+              </div>
+              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                Have a friend's referral code? Enter it here to get started with Google sign-in!
+              </p>
+            </div>
+
+            {/* Google Registration Button */}
+            {isGoogleOAuthAvailable && (
+              <button
+                onClick={() => googleLogin()}
+                className="w-full bg-white border-2 border-gray-300 rounded-xl px-3 lg:px-6 py-3 text-gray-700 font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 flex items-center justify-center space-x-3 mb-6 shadow-sm hover:shadow-md"
+              >
+                <img src="/google.svg" alt="Google" className="w-6 h-6" />
+                <span>Sign Up with Google</span>
+              </button>
+            )}
+
+            {/* Divider */}
+            {isGoogleOAuthAvailable && (
+              <div className="relative mb-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white dark:bg-gray-800 text-gray-500">Or register with email</span>
+                </div>
+              </div>
+            )}
+
+            <form onSubmit={handleRegister} className="space-y-6">
+              {/* Name Input */}
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <FaUser className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  id="name"
-                  name="name"
                   type="text"
+                  placeholder="Full Name"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
                   required
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="Enter your full name"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-300"
                 />
               </div>
-            </div>
 
-            {/* Email Field */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Email Address
-              </label>
+              {/* Email Input */}
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <FaEnvelope className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  id="email"
-                  name="email"
                   type="email"
+                  placeholder="Email Address"
+                  value={email}
+                  onChange={e => setEmail(e.target.value?.toLowerCase())}
                   required
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="Enter your email"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-300"
                 />
               </div>
-            </div>
 
-            {/* Username Field */}
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Username
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaUser className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="username"
-                  name="username"
-                  type="text"
-                  required
-                  value={formData.username}
-                  onChange={handleChange}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="Choose a username"
-                />
-              </div>
-            </div>
-
-            {/* Phone Field */}
-            <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Phone Number
-              </label>
+              {/* Phone Input */}
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <FaPhone className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  id="phone"
-                  name="phone"
                   type="tel"
+                  placeholder="Phone Number"
+                  value={phone}
+                  onChange={e => setPhone(e.target.value)}
                   required
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="Enter your phone number"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-300"
                 />
               </div>
-            </div>
 
-            {/* Password Field */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Password
-              </label>
+              {/* Password Input */}
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <FaLock className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  id="password"
-                  name="password"
                   type={showPassword ? 'text' : 'password'}
+                  placeholder="Password"
+                  value={password}
+                  onChange={handlePasswordChange}
                   required
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="block w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="Create a password"
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-300"
                 />
                 <button
                   type="button"
@@ -258,104 +326,72 @@ const RegisterPage = () => {
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
                 >
                   {showPassword ? (
-                    <FaEyeSlash className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                    <FaEyeSlash className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" />
                   ) : (
-                    <FaEye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                    <FaEye className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" />
                   )}
                 </button>
               </div>
-            </div>
 
-            {/* Confirm Password Field */}
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Confirm Password
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaLock className="h-5 w-5 text-gray-400" />
+              {/* Password Strength Indicator */}
+              {password && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600 dark:text-gray-400">Password Strength:</span>
+                    <span className={`font-medium ${getPasswordStrengthColor()}`}>
+                      {getPasswordStrengthText()}
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div
+                      className={`h-2 rounded-full transition-all duration-300 ${
+                        passwordStrength <= 2 ? 'bg-red-500' :
+                        passwordStrength <= 3 ? 'bg-yellow-500' :
+                        passwordStrength <= 4 ? 'bg-yellow-500' : 'bg-green-500'
+                      }`}
+                      style={{ width: `${(passwordStrength / 5) * 100}%` }}
+                    ></div>
+                  </div>
                 </div>
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  required
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className="block w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="Confirm your password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                >
-                  {showConfirmPassword ? (
-                    <FaEyeSlash className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                  ) : (
-                    <FaEye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {/* Referral Code Field (Optional) */}
-            <div>
-              <label htmlFor="referralCode" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Referral Code (Optional)
-              </label>
-              <input
-                id="referralCode"
-                type="text"
-                value={referralCode}
-                onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-                className="block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Enter referral code"
-              />
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-            >
-              {isLoading ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-              ) : (
-                <>
-                  <FaSignInAlt className="mr-2" />
-                  Create Account
-                </>
               )}
-            </button>
 
-            {/* Google Registration Button */}
-            <button
-              type="button"
-              onClick={() => googleLogin()}
-              className="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold py-3 px-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-300 flex items-center justify-center"
-            >
-              <img src="/google.svg" alt="Google" className="w-5 h-5 mr-2" />
-              Continue with Google
-            </button>
-          </form>
-
-          {/* Links */}
-          <div className="mt-6 text-center">
-            <div className="text-sm text-gray-600 dark:text-gray-300">
-              Already have an account?{' '}
-              <Link
-                href="/login"
-                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium"
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-gradient-to-r from-yellow-500 to-red-500 hover:from-yellow-600 hover:to-red-600 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl"
               >
-                Sign in here
-              </Link>
+                {isLoading ? (
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                ) : (
+                  <>
+                    <FaUser className="h-5 w-5" />
+                    <span>Create Account</span>
+                  </>
+                )}
+              </button>
+            </form>
+
+            {/* Links */}
+            <div className="mt-6 text-center space-y-4">
+              <div>
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  Already have an account?{' '}
+                </span>
+                <Link href="/login" className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-semibold transition-colors">
+                  Sign in here
+                </Link>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+    </MobileAppWrapper>
+    
+    {/* Desktop Footer */}
+    <UnifiedFooter />
+    </>
   )
 }
 

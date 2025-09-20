@@ -1,7 +1,5 @@
-'use client'
-
-import React from 'react'
-import Link from 'next/link'
+import React from 'react';
+import Link from 'next/link';
 import {
   FaFacebookF,
   FaTwitter,
@@ -11,11 +9,11 @@ import {
   FaWhatsapp,
   FaDiscord,
   FaTelegramPlane
-} from 'react-icons/fa'
-import config from '@/lib/config/appConfig'
+} from 'react-icons/fa';
+import config from '../lib/config/appConfig';
 
 const UnifiedFooter = ({ isLandingPage = false }) => {
-  const legalLinks = config.LEGAL
+  const legalLinks = config.LEGAL;
 
   // Convert legal links object to array format for mapping
   const legalLinksArray = [
@@ -23,7 +21,7 @@ const UnifiedFooter = ({ isLandingPage = false }) => {
     { name: 'Terms & Conditions', path: legalLinks.TERMS },
     { name: 'Refund Policy', path: legalLinks.REFUND_POLICY },
     { name: 'Halal Disclaimer', path: legalLinks.HALAL_DISCLAIMER }
-  ]
+  ];
 
   // Define social links from .env (same as contact page)
   const socialLinks = [
@@ -35,7 +33,7 @@ const UnifiedFooter = ({ isLandingPage = false }) => {
     { icon: <FaWhatsapp />, url: process.env.NEXT_PUBLIC_WHATSAPP_URL || "#" },
     { icon: <FaDiscord />, url: process.env.NEXT_PUBLIC_DISCORD_URL || "#" },
     { icon: <FaTelegramPlane />, url: process.env.NEXT_PUBLIC_TELEGRAM_URL || "#" },
-  ]
+  ];
 
   if (isLandingPage) {
     // Landing page footer - more comprehensive
@@ -63,9 +61,9 @@ const UnifiedFooter = ({ isLandingPage = false }) => {
                     rel="noopener noreferrer"
                     title={item.url !== "#" ? new URL(item.url).hostname : "Social Media"}
                     className="w-11 h-11 rounded-full text-white flex items-center justify-center text-xl 
-                     shadow-lg transition-all duration-300 transform hover:scale-110 hover:rotate-3
-                     bg-gradient-to-bl from-yellow-500 to-red-500 
-                     dark:from-gray-700 dark:to-gray-900 hover:shadow-2xl"
+                      shadow-lg transition-all duration-300 transform hover:scale-110 hover:rotate-3
+                      bg-gradient-to-bl from-yellow-500 to-red-500 
+                      dark:from-gray-700 dark:to-gray-900 hover:shadow-2xl"
                   >
                     {item.icon}
                   </a>
@@ -108,12 +106,12 @@ const UnifiedFooter = ({ isLandingPage = false }) => {
                   { name: 'Refund Policy', href: '/refund' }
                 ].map((link) => (
                   <li key={link.name}>
-                    <Link
+                    <a
                       href={link.href}
                       className="text-gray-600 dark:text-gray-400 hover:text-gray-400 dark:hover:text-white transition-colors"
                     >
                       {link.name}
-                    </Link>
+                    </a>
                   </li>
                 ))}
               </ul>
@@ -130,7 +128,7 @@ const UnifiedFooter = ({ isLandingPage = false }) => {
           </div>
         </div>
       </footer>
-    )
+    );
   }
 
   // Homepage footer - simpler version
@@ -156,9 +154,9 @@ const UnifiedFooter = ({ isLandingPage = false }) => {
             rel="noopener noreferrer"
             title={item.url !== "#" ? new URL(item.url).hostname : "Social Media"}
             className="w-9 h-9 rounded-full text-white flex items-center justify-center text-lg 
-             shadow-lg transition-all duration-300 transform hover:scale-110 hover:rotate-3
-             bg-gradient-to-bl from-yellow-500 to-red-500 
-             hover:shadow-xl"
+              shadow-lg transition-all duration-300 transform hover:scale-110 hover:rotate-3
+              bg-gradient-to-bl from-yellow-500 to-red-500 
+              hover:shadow-xl"
           >
             {item.icon}
           </a>
@@ -173,7 +171,7 @@ const UnifiedFooter = ({ isLandingPage = false }) => {
         Designed & Developed by <a target='_blank' rel='noreferrer' href='https://mohdsazidkhan.com' className="hover:text-gray-900 dark:hover:text-white transition-colors">{config.APP_AUTHOR}</a>
       </p>
     </footer>
-  )
-}
+  );
+};
 
-export default UnifiedFooter
+export default UnifiedFooter;

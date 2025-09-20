@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { isTokenValid, removeToken } from '@/lib/utils/authUtils'
-import { useGlobalError } from '@/contexts/GlobalErrorContext'
+import { isTokenValid, removeToken } from '../utils/authUtils'
+import { useGlobalError } from '../contexts/GlobalErrorContext'
 
 export default function TokenValidationWrapper({ children, showWarning = true }) {
   const router = useRouter()

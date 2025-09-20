@@ -1,0 +1,88 @@
+/* Scroll to Top Button */
+.scroll-to-top-btn {
+  position: fixed !important;
+  bottom: 60px !important; /* Position above bottom navigation */
+  right: 10px !important;
+  z-index: 1000 !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 10% !important;
+  background: linear-gradient(45deg, #e43711c2 0%, #d7a30d 100%) !important;
+  border: none !important;
+  box-shadow: 0 4px 20px rgba(234, 210, 102, 0.4) !important;
+  cursor: pointer !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  backdrop-filter: blur(10px) !important;
+  animation: scrollToTopFadeIn 0.3s ease-out !important;
+}
+
+.scroll-to-top-btn:hover {
+  transform: translateY(-3px) scale(1.1) !important;
+  box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6) !important;
+}
+
+.scroll-to-top-btn:active {
+  transform: translateY(-1px) scale(1.05) !important;
+}
+
+.scroll-to-top-icon {
+  color: white !important;
+  font-size: 18px !important;
+  transition: all 0.3s ease !important;
+}
+
+.scroll-to-top-btn:hover .scroll-to-top-icon {
+  transform: translateY(-2px) !important;
+}
+
+/* Dark mode styles for scroll to top button */
+.dark .scroll-to-top-btn {
+  background: linear-gradient(135deg, #ef5a39 0%, #f3c233 100%) !important;
+  box-shadow: 0 4px 20px rgba(229, 179, 70, 0.4) !important;
+}
+
+.dark .scroll-to-top-btn:hover {
+  box-shadow: 0 8px 30px rgba(229, 189, 70, 0.6) !important;
+}
+
+/* Animation for button appearance */
+@keyframes scrollToTopFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-to-top-btn {
+    transition: none;
+    animation: none;
+  }
+  
+  .scroll-to-top-btn:hover {
+    transform: none;
+  }
+  
+  .scroll-to-top-icon {
+    transition: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .scroll-to-top-btn {
+    border: 2px solid white;
+  }
+  
+  .dark .scroll-to-top-btn {
+    border: 2px solid white;
+  }
+}

@@ -12,7 +12,7 @@ export default function AdminRoute({ children }) {
   useEffect(() => {
     if (!isAdmin() || !hasAdminPrivileges()) {
       showError('Access denied. Admin privileges required.')
-      router.push('/')
+      router.push('/home')
     }
   }, [router, showError])
 
@@ -32,7 +32,7 @@ export default function AdminRoute({ children }) {
             You don't have the required admin privileges to access this page.
           </p>
           <button
-            onClick={() => router.push('/')}
+            onClick={() => router.push('/home')}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
           >
             Go Home

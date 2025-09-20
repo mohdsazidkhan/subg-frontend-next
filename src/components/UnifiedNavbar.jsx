@@ -1,102 +1,98 @@
-'use client'
-
-import React, { useState, useEffect } from 'react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 import {
   FaSun,
   FaMoon,
   FaCreditCard,
   FaCalendarAlt,
   FaSignOutAlt
-} from 'react-icons/fa'
-import { BsPersonCircle, BsSearch } from 'react-icons/bs'
-import { MdDashboard } from 'react-icons/md'
-import { isAdmin } from '@/lib/utils/adminUtils'
-import { isAuthenticated, logout, getUserRole } from '@/lib/utils/authUtils'
+} from 'react-icons/fa';
+import { BsPersonCircle, BsSearch } from 'react-icons/bs';
+import { MdDashboard } from 'react-icons/md';
+import { secureLogout, getCurrentUser } from '../lib/utils/authUtils';
+import { hasActiveSubscription } from '../lib/utils/subscriptionUtils';
+import { isAdmin } from '../lib/utils/adminUtils';
 
 const UnifiedNavbar = ({ isLandingPage = false, scrollToSection }) => {
-  const router = useRouter()
-  const user = isAuthenticated()
+  const router = useRouter();
+  const user = getCurrentUser();
   
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof window !== "undefined") {
-      const savedTheme = localStorage.getItem("theme")
-      if (savedTheme) return savedTheme === "dark"
-      if (window.matchMedia("(prefers-color-scheme: dark)").matches) return true
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme) return savedTheme === "dark";
+      if (window.matchMedia("(prefers-color-scheme: dark)").matches) return true;
     }
-    return false
-  })
+    return false;
+  });
 
   useEffect(() => {
-    const root = window.document.documentElement
+    const root = window.document.documentElement;
     if (darkMode) {
-      root.classList.add("dark")
+      root.classList.add("dark");
     } else {
-      root.classList.remove("dark")
+      root.classList.remove("dark");
     }
-    localStorage.setItem("theme", darkMode ? "dark" : "light")
-  }, [darkMode])
+    localStorage.setItem("theme", darkMode ? "dark" : "light");
+  }, [darkMode]);
 
-  const toggleTheme = () => setDarkMode(!darkMode)
-  const handleLogout = () => {
-    logout()
-    router.push('/')
-  }
+  const toggleTheme = () => setDarkMode(!darkMode);
+  const handleLogout = () => secureLogout(router);
 
   // Navbar links for students
   const studentLinks = (
     <>
       <Link
-        href="/search"
         title="Search"
+        href="/search"
         className="w-8 h-8 rounded-full bg-gradient-to-r from-orange-500 to-yellow-500 p-2 shadow-lg hover:scale-105 transition-transform flex items-center justify-center"
       >
         <BsSearch className="text-lg text-white" />
       </Link>
       <Link
-        href="/articles"
         title="Articles"
+        href="/articles"
         className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 p-2 shadow-lg hover:scale-105 transition-transform flex items-center justify-center"
       >
         <span className="text-lg text-white">📝</span>
       </Link>
       <Link
-        href="/rewards"
         title="Rewards"
+        href="/rewards"
         className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-blue-600 p-2 shadow-lg hover:scale-105 transition-transform flex items-center justify-center"
       >
         <span className="text-lg text-white">🏆</span>
       </Link>
       <Link
+        title={hasActiveSubscription() ? "My Subscription" : "Subscribe Now"}
         href="/subscription"
-        title="My Subscription"
         className="w-8 h-8 rounded-full bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 p-2 shadow-lg hover:scale-105 transition-transform flex items-center justify-center"
       >
         <span className="text-lg text-white">
-          <FaCalendarAlt />
+          {hasActiveSubscription() ? <FaCalendarAlt /> : <FaCreditCard />}
         </span>
       </Link>
       <Link
-        href="/profile"
         title="My Profile"
+        href="/profile"
         className="w-8 h-8 rounded-full bg-gradient-to-r from-yellow-500 to-red-500 p-2 shadow-lg hover:scale-105 transition-transform flex items-center justify-center"
       >
         <BsPersonCircle className="text-lg text-white" />
       </Link>
     </>
-  )
+  );
 
   // Navbar links for admin
   const adminLinks = (
     <Link
-      href="/admin/dashboard"
       title="Admin Dashboard"
+      href="/admin/dashboard"
       className="w-8 h-8 rounded-full bg-gradient-to-r from-red-500 to-pink-600 p-2 shadow-lg hover:scale-105 transition-transform flex items-center justify-center"
     >
       <MdDashboard className="text-lg text-white" />
     </Link>
-  )
+  );
 
   // Auth links for guests
   const guestLinks = (
@@ -108,49 +104,49 @@ const UnifiedNavbar = ({ isLandingPage = false, scrollToSection }) => {
         Get Started
       </Link>
     </>
-  )
+  );
 
   // Landing page navigation links
   const landingPageLinks = (
     <nav className="hidden lg:flex items-center space-x-8">
       <button 
-        onClick={() => scrollToSection?.('hero')}
+        onClick={() => scrollToSection('hero')}
         className="hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors"
       >
         Home
       </button>
       <button 
-        onClick={() => scrollToSection?.('levels')}
+        onClick={() => scrollToSection('levels')}
         className="hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors"
       >
         Levels
       </button>
       <button 
-        onClick={() => scrollToSection?.('categories')}
+        onClick={() => scrollToSection('categories')}
         className="hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors"
       >
         Categories
       </button>
       <button 
-        onClick={() => scrollToSection?.('performers')}
+        onClick={() => scrollToSection('performers')}
         className="hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors"
       >
         Top Performers
       </button>
       <button 
-        onClick={() => scrollToSection?.('prizes')}
+        onClick={() => scrollToSection('prizes')}
         className="hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors"
       >
         Prizes
       </button>
       <button 
-        onClick={() => scrollToSection?.('subscription')}
+        onClick={() => scrollToSection('subscription')}
         className="hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors"
       >
         Plans
       </button>
       <button 
-        onClick={() => scrollToSection?.('referrals')}
+        onClick={() => scrollToSection('referrals')}
         className="hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors"
       >
         Referrals
@@ -162,7 +158,7 @@ const UnifiedNavbar = ({ isLandingPage = false, scrollToSection }) => {
         Blog
       </button>
     </nav>
-  )
+  );
 
   return (
     <header className={`hidden md:block fixed z-[9999] transition-all duration-300 w-full ${
@@ -231,7 +227,7 @@ const UnifiedNavbar = ({ isLandingPage = false, scrollToSection }) => {
         </div>
       </div>
     </header>
-  )
-}
+  );
+};
 
-export default UnifiedNavbar
+export default UnifiedNavbar;

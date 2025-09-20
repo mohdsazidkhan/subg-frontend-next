@@ -27,20 +27,20 @@ This is the Next.js version of the SUBG QUIZ application, converted from React t
 ### Installation
 
 1. Clone the repository:
-```bash
-git clone <repository-url>
-cd subg-frontend-next
-```
+   ```bash
+   git clone <repository-url>
+   cd subg-frontend-next
+   ```
 
 2. Install dependencies:
-```bash
-npm install
+   ```bash
+   npm install
 # or
 yarn install
 ```
 
 3. Create environment file:
-```bash
+   ```bash
 cp env.example .env.local
 ```
 
@@ -50,6 +50,35 @@ NEXT_PUBLIC_API_URL=http://localhost:5000
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_google_client_id
 # ... other variables
 ```
+
+### Google OAuth Setup
+
+To enable Google OAuth login, you need to:
+
+1. **Create a Google Cloud Project:**
+   - Go to [Google Cloud Console](https://console.cloud.google.com/)
+   - Create a new project or select an existing one
+
+2. **Enable Google+ API:**
+   - Navigate to "APIs & Services" > "Library"
+   - Search for "Google+ API" and enable it
+
+3. **Create OAuth 2.0 Credentials:**
+   - Go to "APIs & Services" > "Credentials"
+   - Click "Create Credentials" > "OAuth 2.0 Client IDs"
+   - Choose "Web application"
+   - Add authorized JavaScript origins:
+     - `http://localhost:3000` (for development)
+     - `https://yourdomain.com` (for production)
+   - Add authorized redirect URIs:
+     - `http://localhost:3000` (for development)
+     - `https://yourdomain.com` (for production)
+
+4. **Update Environment Variables:**
+   - Copy the Client ID from Google Cloud Console
+   - Replace `your_google_client_id` in `.env.local` with your actual Client ID
+
+**Note:** If Google OAuth is not configured, the Google login buttons will be hidden automatically, and users can still register/login with email and password.
 
 5. Run the development server:
 ```bash
