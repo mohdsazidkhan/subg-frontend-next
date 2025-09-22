@@ -1137,6 +1137,13 @@ const HomePage = () => {
                 <p className="text-gray-600 dark:text-gray-300 text-lg">Loading...</p>
               </div>
             </div>
+          ) : loading ? (
+            <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-3xl shadow-2xl p-0 md:p-8 border border-white/20 flex flex-col items-center justify-center animate-fade-in">
+              <div className="text-center mb-6">
+                <div className="animate-spin rounded-full h-16 w-16 border-2 border-gray-500 mx-auto mb-4"></div>
+                <p className="text-gray-600 dark:text-gray-300 text-lg">Loading your quizzes...</p>
+              </div>
+            </div>
           ) : !isLoggedIn ? (
             <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-3xl shadow-2xl p-0 md:p-8 border border-white/20 flex flex-col items-center justify-center animate-fade-in">
               <div className="text-center mb-6">

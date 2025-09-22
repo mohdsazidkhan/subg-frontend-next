@@ -392,7 +392,7 @@ const TopPerformers = () => {
                   <h5 className="text-xl font-bold text-gray-900 dark:text-white">
                     {data.currentUser.name}
                   </h5>
-                  <div className={`subscription-name-badge ${
+                  <div className={`subscription-name-badge text-white ${
                               data.currentUser.subscriptionName === "PRO"
                             ? "bg-gradient-to-r from-yellow-400 to-red-500"
                             : data.currentUser.subscriptionName === "PREMIUM"
@@ -405,6 +405,9 @@ const TopPerformers = () => {
                         </div>
                   <p className="text-gray-600 dark:text-gray-300">
                     Level {data.currentUser.level.currentLevel} - {data.currentUser.level.levelName}
+                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Position #{data.currentUser.position} out of {data.total} students
                   </p>
                 </div>
               </div>
@@ -519,7 +522,7 @@ const TopPerformers = () => {
                       </span>
                     )}
                   </h5>
-                  <div className={`subscription-name-badge ${
+                  <div className={`subscription-name-badge text-white ${
                               p.subscriptionName === "PRO"
                             ? "bg-gradient-to-r from-yellow-400 to-red-500"
                             : p.subscriptionName === "PREMIUM"
@@ -587,7 +590,7 @@ const TopPerformers = () => {
                         <div className="font-bold text-gray-900 dark:text-white text-md lg:text-lg">
                           {p.name || "Unknown"}
                         </div>
-                        <div className={`subscription-name-badge ${
+                        <div className={`subscription-name-badge text-white ${
                               p.subscriptionName === "PRO"
                             ? "bg-gradient-to-r from-yellow-400 to-red-500"
                             : p.subscriptionName === "PREMIUM"
@@ -640,7 +643,7 @@ const TopPerformers = () => {
                   </div>
                   <div>
                     <div className="font-semibold text-gray-900 dark:text-white">{p.name || "Unknown"}</div>
-                    <div className={`subscription-name-badge ${
+                    <div className={`subscription-name-badge text-white ${
                               p.subscriptionName === "PRO"
                             ? "bg-gradient-to-r from-yellow-400 to-red-500"
                             : p.subscriptionName === "PREMIUM"
