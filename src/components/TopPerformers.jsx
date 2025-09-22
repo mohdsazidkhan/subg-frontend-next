@@ -427,6 +427,64 @@ const TopPerformers = () => {
         </div>
       )}
 
+      {/* Surrounding Users (1 before + current + 1 after) */}
+      {Array.isArray(data?.surroundingUsers) && data.surroundingUsers.length > 0 && (
+        <div className="my-8">
+          <h4 className="text-md lg:text-xl font-bold text-gray-900 dark:text-white mb-4">
+            👥 Nearby Rankings
+          </h4>
+          <div className="space-y-3">
+            {data.surroundingUsers.map((u, idx) => (
+              <div
+                key={`${u.userId || idx}`}
+                className={`flex items-center justify-between p-3 rounded-lg border transition-all duration-200 ${
+                  u.isCurrentUser
+                    ? "bg-gradient-to-r from-red-100 to-yellow-100 dark:from-red-800 dark:to-yellow-900 border-red-400 dark:border-yellow-600"
+                    : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-indigo-500 text-white font-bold flex items-center justify-center shadow">
+                    {u.position}
+                  </div>
+                  <div>
+                    <div className="font-semibold text-gray-900 dark:text-white">{u.name || "Unknown"}</div>
+                    <div className={`subscription-name-badge text-white ${
+                              u.subscriptionName === "PRO"
+                            ? "bg-gradient-to-r from-yellow-400 to-red-500"
+                            : u.subscriptionName === "PREMIUM"
+                            ? "bg-gradient-to-r from-pink-400 to-orange-500"
+                            : u.subscriptionName === "BASIC"
+                            ? "bg-gradient-to-r from-blue-400 to-indigo-500"
+                            : "bg-gradient-to-r from-green-400 to-teal-500"
+                          }`}>
+                      {u.subscriptionName || "FREE"}
+                    </div>
+                    <div className="text-xs text-gray-600 dark:text-gray-300">
+                      Level {u.level?.currentLevel || 0} • {u.level?.levelName || "No Level"}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-4 text-xs">
+                  <div className="text-center">
+                    <div className="font-semibold text-green-600 dark:text-green-400">{u.level?.highScoreQuizzes || 0}</div>
+                    <div className="text-gray-500 dark:text-gray-400">High Scores</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="font-semibold text-blue-600 dark:text-blue-400">{u.level?.quizzesPlayed || 0}</div>
+                    <div className="text-gray-500 dark:text-gray-400">Quizzes</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="font-semibold text-purple-600 dark:text-purple-400">{u.level?.accuracy || 0}%</div>
+                    <div className="text-gray-500 dark:text-gray-400">Accuracy</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Simplified List View */}
       {viewMode === "list" && (
         <div className="space-y-4">
@@ -461,6 +519,17 @@ const TopPerformers = () => {
                       </span>
                     )}
                   </h5>
+                  <div className={`subscription-name-badge ${
+                              p.subscriptionName === "PRO"
+                            ? "bg-gradient-to-r from-yellow-400 to-red-500"
+                            : p.subscriptionName === "PREMIUM"
+                            ? "bg-gradient-to-r from-pink-400 to-orange-500"
+                            : p.subscriptionName === "BASIC"
+                            ? "bg-gradient-to-r from-blue-400 to-indigo-500"
+                            : "bg-gradient-to-r from-green-400 to-teal-500"
+                          }`}>
+                    {p.subscriptionName || "FREE"}
+                  </div>
                   <p className="text-sm text-gray-600 dark:text-gray-300">
                     Level {p.level?.currentLevel || 0} - {p.level?.levelName || "No Level"}
                   </p>
@@ -488,6 +557,123 @@ const TopPerformers = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Table View */}
+      {viewMode === "table" && (
+        <div className="overflow-x-auto">
+          <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+            📊 Top 10 Performers - Table View
+          </h4>
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className="bg-gray-50 dark:bg-gray-900/40">
+              <tr>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Rank</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Name</th>
+                <th className="px-4 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Level</th>
+                <th className="px-4 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">High Scores</th>
+                <th className="px-4 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Quizzes</th>
+                <th className="px-4 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Accuracy</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              {topPerformers.map((p, i) => (
+                <tr key={i} className={p.userId === currentUserId ? "bg-yellow-50/60 dark:bg-yellow-900/10" : ""}>
+                  <td className="px-4 py-2 whitespace-nowrap font-semibold text-gray-900 dark:text-white">{i + 1}</td>
+                  <td className="px-4 py-2 whitespace-nowrap text-gray-900 dark:text-white">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <div className="font-bold text-gray-900 dark:text-white text-md lg:text-lg">
+                          {p.name || "Unknown"}
+                        </div>
+                        <div className={`subscription-name-badge ${
+                              p.subscriptionName === "PRO"
+                            ? "bg-gradient-to-r from-yellow-400 to-red-500"
+                            : p.subscriptionName === "PREMIUM"
+                            ? "bg-gradient-to-r from-pink-400 to-orange-500"
+                            : p.subscriptionName === "BASIC"
+                            ? "bg-gradient-to-r from-blue-400 to-indigo-500"
+                            : "bg-gradient-to-r from-green-400 to-teal-500"
+                        }`}>
+                          {p.subscriptionName || "FREE"}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-2 whitespace-nowrap text-center text-gray-700 dark:text-gray-300">L{p.level?.currentLevel || 0} - {p.level?.levelName || "No Level"}</td>
+                  <td className="px-4 py-2 whitespace-nowrap text-center text-green-600 dark:text-green-400 font-semibold">{p.level?.highScoreQuizzes || 0}</td>
+                  <td className="px-4 py-2 whitespace-nowrap text-center text-blue-600 dark:text-blue-400 font-semibold">{p.level?.quizzesPlayed || 0}</td>
+                  <td className="px-4 py-2 whitespace-nowrap text-center text-purple-600 dark:text-purple-400 font-semibold">{p.level?.accuracy || 0}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Grid View */}
+      {viewMode === "grid" && (
+        <div>
+          <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+            🧩 Top 10 Performers - Grid View
+          </h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {topPerformers.map((p, i) => (
+              <div
+                key={i}
+                className={`p-4 rounded-xl border shadow transition-all duration-200 ${
+                  p.userId === currentUserId
+                    ? "bg-gradient-to-r from-red-100 to-yellow-100 dark:from-red-800 dark:to-yellow-900 border-red-400 dark:border-yellow-600"
+                    : i === 0
+                    ? "bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border-yellow-200 dark:border-yellow-600"
+                    : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600"
+                }`}
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shadow ${
+                    p.userId === currentUserId ? "bg-gradient-to-r from-red-500 to-yellow-500" :
+                    i === 0 ? "bg-gradient-to-r from-yellow-400 to-orange-500" :
+                    "bg-gradient-to-r from-blue-400 to-indigo-500"
+                  }`}>
+                    {i + 1}
+                  </div>
+                  <div>
+                    <div className="font-semibold text-gray-900 dark:text-white">{p.name || "Unknown"}</div>
+                    <div className={`subscription-name-badge ${
+                              p.subscriptionName === "PRO"
+                            ? "bg-gradient-to-r from-yellow-400 to-red-500"
+                            : p.subscriptionName === "PREMIUM"
+                            ? "bg-gradient-to-r from-pink-400 to-orange-500"
+                            : p.subscriptionName === "BASIC"
+                            ? "bg-gradient-to-r from-blue-400 to-indigo-500"
+                            : "bg-gradient-to-r from-green-400 to-teal-500"
+                          }`}>
+                      {p.subscriptionName || "FREE"}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <div>
+                    <div className="text-gray-500 dark:text-gray-400">Level</div>
+                    <div className="font-semibold text-gray-900 dark:text-white">L{p.level?.currentLevel || 0}</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-gray-500 dark:text-gray-400">High Scores</div>
+                    <div className="font-semibold text-green-600 dark:text-green-400">{p.level?.highScoreQuizzes || 0}</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-gray-500 dark:text-gray-400">Quizzes</div>
+                    <div className="font-semibold text-blue-600 dark:text-blue-400">{p.level?.quizzesPlayed || 0}</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-gray-500 dark:text-gray-400">Accuracy</div>
+                    <div className="font-semibold text-purple-600 dark:text-purple-400">{p.level?.accuracy || 0}%</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
