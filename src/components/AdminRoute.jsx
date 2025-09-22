@@ -2,8 +2,8 @@
 
 import React, { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { isAdmin, hasAdminPrivileges } from '@/lib/utils/adminUtils'
-import { useGlobalError } from '@/contexts/GlobalErrorContext'
+import { isAdmin, hasAdminPrivileges } from '../../lib/utils/adminUtils'
+import { useGlobalError } from '../../contexts/GlobalErrorContext'
 
 export default function AdminRoute({ children }) {
   const router = useRouter()

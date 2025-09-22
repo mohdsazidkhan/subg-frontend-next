@@ -3,8 +3,7 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useGoogleLogin } from '@react-oauth/google'
-import API from '../../utils/api'
+import API from '../../lib/api'
 import { toast } from 'react-toastify'
 import { FaUser, FaEnvelope, FaPhone, FaLock, FaEye, FaEyeSlash, FaTrophy, FaBrain, FaRocket } from 'react-icons/fa'
 import MonthlyRewardsInfo from '../MonthlyRewardsInfo'
@@ -22,10 +21,6 @@ const RegisterPage = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [referralCode, setReferralCode] = useState("")
   const router = useRouter()
-
-  // Check if Google OAuth is available
-  const isGoogleOAuthAvailable = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && 
-    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID !== 'your_google_client_id_here'
 
   const checkPasswordStrength = (password) => {
     let strength = 0
@@ -46,7 +41,7 @@ const RegisterPage = () => {
   const getPasswordStrengthColor = () => {
     if (passwordStrength <= 2) return 'text-red-500'
     if (passwordStrength <= 3) return 'text-yellow-500'
-    if (passwordStrength <= 4) return 'text-yellow-500'
+  if (passwordStrength <= 4) return 'text-yellow-500'
     return 'text-green-500'
   }
 
@@ -57,100 +52,61 @@ const RegisterPage = () => {
     return 'Strong'
   }
 
-  // Google OAuth Registration
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (response) => {
-      try {
-        console.log('🔍 Google OAuth process started...')
-        
-        // Get user info from Google
-        const userInfo = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-          headers: { Authorization: `Bearer ${response.access_token}` }
-        }).then(res => res.json())
-        
-        console.log('📊 Google user info:', userInfo)
-        
-        // Send to backend for registration with referral code
-        const authResponse = await API.googleAuth({
-          googleId: userInfo.sub,
-          email: userInfo.email,
-          name: userInfo.name,
-          picture: userInfo.picture,
-          ...(referralCode && { referralCode: referralCode.toUpperCase() })
-        })
-        
-        if (authResponse.success) {
-          console.log('✅ Google registration successful, processing user data...')
-          
-          localStorage.setItem('userInfo', JSON.stringify(authResponse.user))
-          localStorage.setItem('token', authResponse.token)
-          
-          if (authResponse.user.role === 'admin') {
-            console.log('🚀 Redirecting to admin dashboard...')
-            router.push('/admin/dashboard')
-          } else {
-            console.log('🚀 Redirecting to home page...')
-            router.push('/home')
-          }
-          
-          toast.success('Welcome to SUBG QUIZ! 🎉')
-        } else {
-          toast.error(authResponse.message || 'Google registration failed')
-        }
-      } catch (error) {
-        console.error('❌ Google registration error:', error)
-        toast.error('Google registration failed. Please try again.')
-      }
-    },
-    onError: (error) => {
-      console.error('❌ Google OAuth error:', error)
-      toast.error('Google registration failed. Please try again.')
-    }
-  })
-
   const handleRegister = async (e) => {
     e.preventDefault()
-    setIsLoading(true)
 
+    // Validate phone number (matches backend validation: exactly 10 digits)
+    const phoneRegex = /^[0-9]{10}$/
+
+    if (!phoneRegex.test(phone)) {
+      toast.error('Phone number must be exactly 10 digits')
+      return
+    }
+
+    if (passwordStrength < 5) {
+      toast.error('Password must meet all requirements')
+      return
+    }
+
+    setIsLoading(true)
     try {
       const response = await API.register({
         name,
         email,
         phone,
         password,
-        ...(referralCode && { referralCode: referralCode.toUpperCase() })
+        ...(referralCode && { referredBy: referralCode })
       })
-
-      if (response.success) {
-        localStorage.setItem('userInfo', JSON.stringify(response.user))
-        localStorage.setItem('token', response.token)
-        
-        if (response.user.role === 'admin') {
-          router.push('/admin/dashboard')
-        } else {
-          router.push('/home')
-        }
-        
-        toast.success('Welcome to SUBG QUIZ! 🎉')
-      } else {
-        toast.error(response.message || 'Registration failed')
+      console.log(response, 'registerregister')
+      if(response.success){
+        toast.success(`${response.message}`)
+        router.push('/login')
       }
-    } catch (error) {
-      console.error('❌ Registration error:', error)
-      toast.error(error.response?.data?.message || 'Registration failed. Please try again.')
+    } catch (err) {
+      console.error('Registration error:', err)
+      
+      // Handle different types of errors
+      if (err.response?.data?.message) {
+        // Backend validation error
+        toast.error(err.response.data.message)
+      } else if (err.message) {
+        // Network or other error
+        toast.error(err.message)
+      } else {
+        // Generic error
+        toast.error('Registration failed! Please try again.')
+      }
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <>
+    <MobileAppWrapper title="Register">
       {/* Desktop Header */}
       <UnifiedNavbar />
-      
-      <MobileAppWrapper title="Register">
-        <div className="min-h-screen flex items-center justify-center p-2 md:p-4 bg-subg-light dark:bg-subg-dark">
-      <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+      <div className="min-h-screen flex items-center justify-center p-2 md:p-4 bg-subg-light dark:bg-subg-dark">
+        <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
         
         {/* Left Side - Quiz Platform Info */}
         <div className="hidden lg:block space-y-8">
@@ -217,50 +173,6 @@ const RegisterPage = () => {
               </p>
             </div>
 
-            {/* Referral Code Input */}
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Referral Code (optional)
-              </label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 font-bold">#</span>
-                <input
-                  type="text"
-                  value={referralCode}
-                  onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-300 tracking-widest uppercase"
-                  placeholder="Enter referral code"
-                  maxLength={8}
-                />
-              </div>
-              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                Have a friend's referral code? Enter it here to get started with Google sign-in!
-              </p>
-            </div>
-
-            {/* Google Registration Button */}
-            {isGoogleOAuthAvailable && (
-              <button
-                onClick={() => googleLogin()}
-                className="w-full bg-white border-2 border-gray-300 rounded-xl px-3 lg:px-6 py-3 text-gray-700 font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 flex items-center justify-center space-x-3 mb-6 shadow-sm hover:shadow-md"
-              >
-                <img src="/google.svg" alt="Google" className="w-6 h-6" />
-                <span>Sign Up with Google</span>
-              </button>
-            )}
-
-            {/* Divider */}
-            {isGoogleOAuthAvailable && (
-              <div className="relative mb-6">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white dark:bg-gray-800 text-gray-500">Or register with email</span>
-                </div>
-              </div>
-            )}
-
             <form onSubmit={handleRegister} className="space-y-6">
               {/* Name Input */}
               <div className="relative">
@@ -298,11 +210,17 @@ const RegisterPage = () => {
                   <FaPhone className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  type="tel"
-                  placeholder="Phone Number"
+                  type="text"
+                  placeholder="Phone Number (10 digits)"
                   value={phone}
-                  onChange={e => setPhone(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^\d{0,10}$/.test(value)) {
+                      setPhone(value);
+                    }
+                  }}
                   required
+                  pattern="[0-9]{10}"
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-300"
                 />
               </div>
@@ -313,7 +231,7 @@ const RegisterPage = () => {
                   <FaLock className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   placeholder="Password"
                   value={password}
                   onChange={handlePasswordChange}
@@ -323,75 +241,101 @@ const RegisterPage = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-500 transition-colors"
                 >
-                  {showPassword ? (
-                    <FaEyeSlash className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" />
-                  ) : (
-                    <FaEye className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" />
-                  )}
+                  {showPassword ? <FaEyeSlash className="h-5 w-5" /> : <FaEye className="h-5 w-5" />}
                 </button>
               </div>
 
-              {/* Password Strength Indicator */}
-              {password && (
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600 dark:text-gray-400">Password Strength:</span>
-                    <span className={`font-medium ${getPasswordStrengthColor()}`}>
-                      {getPasswordStrengthText()}
-                    </span>
+              {/* Password Requirements */}
+              <div className="p-4 bg-gradient-to-r from-yellow-50 to-red-50 dark:from-gray-700 dark:to-gray-600 rounded-xl border border-yellow-200 dark:border-gray-600">
+                <p className="font-medium mb-3 text-gray-800 dark:text-white">Password Requirements:</p>
+                <div className="grid grid-cols-1 gap-2 text-sm">
+                  <div className={`flex items-center ${password.length >= 8 ? "text-green-600" : "text-gray-500"}`}>
+                    <span className="mr-2">{password.length >= 8 ? "✓" : "○"}</span>
+                    At least 8 characters
                   </div>
-                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div
-                      className={`h-2 rounded-full transition-all duration-300 ${
-                        passwordStrength <= 2 ? 'bg-red-500' :
-                        passwordStrength <= 3 ? 'bg-yellow-500' :
-                        passwordStrength <= 4 ? 'bg-yellow-500' : 'bg-green-500'
-                      }`}
-                      style={{ width: `${(passwordStrength / 5) * 100}%` }}
-                    ></div>
+                  <div className={`flex items-center ${/[a-z]/.test(password) ? "text-green-600" : "text-gray-500"}`}>
+                    <span className="mr-2">{/[a-z]/.test(password) ? "✓" : "○"}</span>
+                    One lowercase letter
+                  </div>
+                  <div className={`flex items-center ${/[A-Z]/.test(password) ? "text-green-600" : "text-gray-500"}`}>
+                    <span className="mr-2">{/[A-Z]/.test(password) ? "✓" : "○"}</span>
+                    One uppercase letter
+                  </div>
+                  <div className={`flex items-center ${/[0-9]/.test(password) ? "text-green-600" : "text-gray-500"}`}>
+                    <span className="mr-2">{/[0-9]/.test(password) ? "✓" : "○"}</span>
+                    One number
+                  </div>
+                  <div className={`flex items-center ${/[@$!%*?&]/.test(password) ? "text-green-600" : "text-gray-500"}`}>
+                    <span className="mr-2">{/[@$!%*?&]/.test(password) ? "✓" : "○"}</span>
+                    One special character (@$!%*?&)
                   </div>
                 </div>
-              )}
+                {password && (
+                  <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-500">
+                    <span className={`text-sm font-medium ${getPasswordStrengthColor()}`}>
+                      Strength: {getPasswordStrengthText()}
+                    </span>
+                  </div>
+                )}
+              </div>
 
-              {/* Submit Button */}
+              {/* Referral Code Input */}
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span className="text-gray-400 font-bold">#</span>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Referral Code (optional)"
+                  value={referralCode}
+                  onChange={e => setReferralCode(e.target.value.toUpperCase())}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-300 tracking-widest uppercase"
+                  maxLength={8}
+                />
+              </div>
+
+              {/* Register Button */}
               <button
                 type="submit"
-                disabled={isLoading}
-                className="w-full bg-gradient-to-r from-yellow-500 to-red-500 hover:from-yellow-600 hover:to-red-600 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl"
+                disabled={passwordStrength < 5 || isLoading}
+                className={`w-full py-3 px-6 rounded-xl font-semibold text-white transition-all duration-300 transform hover:scale-105 ${
+                  passwordStrength < 5 || isLoading
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-yellow-500 to-red-500 hover:from-yellow-600 hover:to-red-600 shadow-lg hover:shadow-xl'
+                }`}
               >
                 {isLoading ? (
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white mr-2"></div>
+                    <span className="text-gray-100 dark:text-gray-200">Creating Account...</span>
+                  </div>
                 ) : (
-                  <>
-                    <FaUser className="h-5 w-5" />
-                    <span>Create Account</span>
-                  </>
+                  'Create Account'
                 )}
               </button>
-            </form>
 
-            {/* Links */}
-            <div className="mt-6 text-center space-y-4">
-              <div>
-                <span className="text-sm text-gray-600 dark:text-gray-400">
+              {/* Login Link */}
+              <div className="text-center">
+                <p className="text-gray-600 dark:text-gray-300">
                   Already have an account?{' '}
-                </span>
-                <Link href="/login" className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-semibold transition-colors">
-                  Sign in here
-                </Link>
+                  <Link 
+                    href="/login" 
+                    className="text-yellow-600 dark:text-yellow-400 hover:text-yellow-700 dark:hover:text-yellow-300 font-semibold transition-colors"
+                  >
+                    LOGIN
+                  </Link>
+                </p>
               </div>
-            </div>
+            </form>
           </div>
         </div>
+        </div>
       </div>
-    </div>
+      {/* Desktop Footer */}
+      <UnifiedFooter />
     </MobileAppWrapper>
-    
-    {/* Desktop Footer */}
-    <UnifiedFooter />
-    </>
   )
 }
 

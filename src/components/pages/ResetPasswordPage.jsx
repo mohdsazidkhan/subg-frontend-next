@@ -7,6 +7,9 @@ import API from '@/lib/api'
 import { toast } from 'react-toastify'
 import { FaLock, FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa'
 
+import UnifiedNavbar from '../UnifiedNavbar';
+import UnifiedFooter from '../UnifiedFooter';
+
 const ResetPasswordPage = () => {
   const searchParams = useSearchParams()
   const router = useRouter()

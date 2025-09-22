@@ -6,6 +6,9 @@ import API from '@/lib/api'
 import { toast } from 'react-toastify'
 import { FaEnvelope, FaArrowLeft } from 'react-icons/fa'
 
+import UnifiedNavbar from '../UnifiedNavbar';
+import UnifiedFooter from '../UnifiedFooter';
+
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)

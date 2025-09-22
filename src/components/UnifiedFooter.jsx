@@ -38,7 +38,7 @@ const UnifiedFooter = ({ isLandingPage = false }) => {
   if (isLandingPage) {
     // Landing page footer - more comprehensive
     return (
-      <footer className="py-8 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white border-t border-gray-200 dark:border-gray-700">
+      <footer className="py-8 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border-b border-gray-700">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {/* Company Info */}
@@ -52,23 +52,23 @@ const UnifiedFooter = ({ isLandingPage = false }) => {
                 Empowering students with interactive learning experiences through comprehensive quizzes, 
                 progressive levels, and rewarding achievements.
               </p>
-              <div className="flex flex-wrap justify-center md:justify-start items-center gap-4">
-                {socialLinks.map((item, index) => (
-                  <a
-                    key={index}
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title={item.url !== "#" ? new URL(item.url).hostname : "Social Media"}
-                    className="w-11 h-11 rounded-full text-white flex items-center justify-center text-xl 
+                             <div className="flex flex-wrap justify-center md:justify-start items-center gap-4">
+                 {socialLinks.map((item, index) => (
+                   <a
+                     key={index}
+                     href={item.url}
+                     target="_blank"
+                     rel="noopener noreferrer"
+                     title={item.url !== "#" ? new URL(item.url).hostname : "Social Media"}
+                     className="w-11 h-11 rounded-full text-white flex items-center justify-center text-xl 
                       shadow-lg transition-all duration-300 transform hover:scale-110 hover:rotate-3
                       bg-gradient-to-bl from-yellow-500 to-red-500 
                       dark:from-gray-700 dark:to-gray-900 hover:shadow-2xl"
-                  >
-                    {item.icon}
-                  </a>
-                ))}
-              </div>
+                   >
+                     {item.icon}
+                   </a>
+                 ))}
+               </div>
             </div>
 
             {/* Quick Links */}
@@ -133,7 +133,7 @@ const UnifiedFooter = ({ isLandingPage = false }) => {
 
   // Homepage footer - simpler version
   return (
-    <footer className="w-full bg-gray-100 dark:bg-gray-800 text-center p-2 md:p-4 lg:py-6 border-t border-gray-200 dark:border-gray-700 transition-colors duration-300">
+    <footer className="py-8 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border-b border-gray-700">
       <div className="flex flex-wrap justify-center gap-3 md:gap-6 text-sm text-gray-600 dark:text-gray-300">
         <Link href="/about" className="hover:text-gray-900 dark:hover:text-white transition-colors">About Us</Link>
         <Link href="/how-it-works" className="hover:text-gray-900 dark:hover:text-white transition-colors">How It Works</Link>
@@ -144,25 +144,25 @@ const UnifiedFooter = ({ isLandingPage = false }) => {
         <Link href="/contact" className="hover:text-gray-900 dark:hover:text-white transition-colors">Contact Us</Link>
       </div>
       
-      {/* Social Icons */}
-      <div className="flex flex-wrap justify-center items-center gap-2 lg:gap-3 mt-4">
-        {socialLinks.map((item, index) => (
-          <a
-            key={index}
-            href={item.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            title={item.url !== "#" ? new URL(item.url).hostname : "Social Media"}
-            className="w-9 h-9 rounded-full text-white flex items-center justify-center text-lg 
+             {/* Social Icons */}
+       <div className="flex flex-wrap justify-center items-center gap-2 lg:gap-3 mt-4">
+         {socialLinks.map((item, index) => (
+           <a
+             key={index}
+             href={item.url}
+             target="_blank"
+             rel="noopener noreferrer"
+             title={item.url !== "#" ? new URL(item.url).hostname : "Social Media"}
+             className="w-9 h-9 rounded-full text-white flex items-center justify-center text-lg 
               shadow-lg transition-all duration-300 transform hover:scale-110 hover:rotate-3
               bg-gradient-to-bl from-yellow-500 to-red-500 
               hover:shadow-xl"
-          >
-            {item.icon}
-          </a>
-        ))}
-      </div>
-      
+           >
+             {item.icon}
+           </a>
+         ))}
+       </div>
+       <div className="flex flex-col justify-center items-center gap-2 mt-4">
       <p className="mt-4 text-xs text-gray-600 dark:text-gray-300">
         &copy; {new Date().getFullYear()} {config.APP_NAME}. All rights reserved. | 
         Version {config.APP_VERSION}
@@ -170,6 +170,7 @@ const UnifiedFooter = ({ isLandingPage = false }) => {
       <p className="mt-1 text-xs text-gray-600 dark:text-gray-300">
         Designed & Developed by <a target='_blank' rel='noreferrer' href='https://mohdsazidkhan.com' className="hover:text-gray-900 dark:hover:text-white transition-colors">{config.APP_AUTHOR}</a>
       </p>
+      </div>
     </footer>
   );
 };

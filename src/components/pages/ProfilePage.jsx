@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import API from '../../utils/api';
+import API from '../../lib/api'
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { handleAuthError } from '../../utils/authUtils';
+import { $1 } from '../../lib/utils/authUtils'
 import { toast } from 'react-toastify';
 import { useRewards } from '../../hooks/useRewards';
 import MonthlyRewardsInfo from '../MonthlyRewardsInfo';
@@ -44,6 +44,8 @@ import { getSubscriptionStatusTextWithTheme } from '../utils/subscriptionUtils';
 import ShareComponent from '../components/ShareComponent';
 import MobileAppWrapper from '../components/MobileAppWrapper';
 import PaymentTransactions from '../components/PaymentTransactions';
+import UnifiedNavbar from '../UnifiedNavbar';
+import UnifiedFooter from '../UnifiedFooter';
 // Level badge icon mapping
 const levelBadgeIcons = {
   'Starter': FaUserGraduate,
@@ -562,6 +564,8 @@ const message =
   return (
   <MobileAppWrapper title="Profile">
     <div className="container mx-auto min-h-screen bg-gray-100 dark:bg-gray-900">
+      {/* Desktop Header */}
+      <UnifiedNavbar />
       <div>
         {/* Profile Header */}
         <div className="bg-white dark:bg-gray-800">
@@ -1747,7 +1751,7 @@ const message =
                   </div>
                 </div>
                 <Link
-                  to="/rewards"
+                  href="/rewards"
                   className="px-3 lg:px-6 py-2 lg:py-3 bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 text-white font-semibold rounded-xl transition-all duration-200 hover:scale-105 shadow-lg"
                 >
                   View Rewards
@@ -1934,6 +1938,9 @@ const message =
           <PaymentTransactions />
         </div>
       </div>
+      
+      {/* Desktop Footer */}
+      <UnifiedFooter />
     </MobileAppWrapper>
   );
 }

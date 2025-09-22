@@ -5,6 +5,9 @@ import RewardsDashboard from '../RewardsDashboard';
 import { useRewards } from '../../hooks/useRewards';
 import MobileAppWrapper from '../MobileAppWrapper';
 
+import UnifiedNavbar from '../UnifiedNavbar';
+import UnifiedFooter from '../UnifiedFooter';
+
 const RewardsPage = () => {
   const { rewards, loading, error } = useRewards();
 
@@ -40,8 +43,12 @@ const RewardsPage = () => {
   return (
     <MobileAppWrapper title="Rewards">
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        {/* Desktop Header */}
+        <UnifiedNavbar />
         <RewardsDashboard rewards={rewards} />
       </div>
+          {/* Desktop Footer */}
+      <UnifiedFooter />
     </MobileAppWrapper>
   );
 };

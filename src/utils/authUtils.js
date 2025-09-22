@@ -162,6 +162,9 @@ export const secureLogout = (router, showToast = true, shouldReload = true) => {
  */
 export const getCurrentUser = () => {
   try {
+    // Check if we're in browser environment
+    if (typeof window === 'undefined') return null;
+    
     const userInfo = localStorage.getItem('userInfo');
     return userInfo ? JSON.parse(userInfo) : null;
   } catch (error) {
@@ -175,6 +178,9 @@ export const getCurrentUser = () => {
  * @returns {string|null}
  */
 export const getAuthToken = () => {
+  // Check if we're in browser environment
+  if (typeof window === 'undefined') return null;
+  
   return localStorage.getItem('token');
 };
 

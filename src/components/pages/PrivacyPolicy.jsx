@@ -1,101 +1,124 @@
-'use client'
+import MobileAppWrapper from '../MobileAppWrapper';
+import UnifiedNavbar from '../UnifiedNavbar';
+import UnifiedFooter from '../UnifiedFooter';
 
-import React from 'react'
-import UnifiedNavbar from '../UnifiedNavbar'
-import UnifiedFooter from '../UnifiedFooter'
+const PrivacyPolicy = () => (
+  <MobileAppWrapper title="Privacy Policy">
+    {/* Desktop Header */}
+    <UnifiedNavbar />
+    <div className="min-h-screen bg-subg-light dark:bg-subg-dark">
+      <div className="max-w-3xl mx-auto px-4 py-10 text-gray-800 dark:text-gray-200 transition-colors duration-300">
+      <h1 className="text-3xl font-semibold mb-4 text-gray-900 dark:text-white">
+        Privacy Policy
+      </h1>
 
-const PrivacyPolicy = () => {
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <UnifiedNavbar />
-      
-      <div className="pt-20 pb-8 px-4">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-8 text-center">
-            Privacy Policy
-          </h1>
+      <p className="mb-4">
+        This Privacy Policy explains how <strong>SUBG QUIZ</strong> collects, uses, stores, and protects your information when you use our platform. By using SUBG QUIZ, you agree to the practices described below.
+      </p>
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
-            <div className="prose prose-lg max-w-none">
-              <p className="text-gray-700 dark:text-gray-300 mb-6">
-                This Privacy Policy explains how <strong className="text-gray-900 dark:text-white">SUBG QUIZ</strong> collects, uses, stores, and protects your information when you use our platform. By using SUBG QUIZ, you agree to the practices described below.
-              </p>
+      <h2 className="text-xl font-semibold mt-6 mb-2 text-gray-900 dark:text-white">1) Information We Collect</h2>
+      <ul className="list-disc pl-6 space-y-2">
+        <li>
+          <strong>Account Information:</strong> name, email, phone number, password (hashed), referral code.
+        </li>
+        <li>
+          <strong>Profile/Student Data:</strong> level progression, badges, leaderboard placement, high‑score quizzes count, quiz best scores, total quizzes played.
+        </li>
+        <li>
+          <strong>Quiz Activity:</strong> quiz attempts, scores, timings, and related analytics used to calculate levels, leaderboard ranks, and rewards eligibility.
+        </li>
+        <li>
+          <strong>Rewards & Wallet:</strong> locked/unlocked/claimed rewards history, claimable balance, and monthly rewards processing status.
+        </li>
+        <li>
+          <strong>Bank/Withdrawal Details (optional):</strong> if you provide bank information for rewards withdrawal, we store it securely and use it only for payout verification and processing.
+        </li>
+        <li>
+          <strong>Subscription & Payments:</strong> plan details and payment status handled via secure third‑party processors (e.g., Razorpay). We do not store full card/UPI details.
+        </li>
+        <li>
+          <strong>Device/Log Data:</strong> IP, browser type, device information, timestamps, and limited logs for security and troubleshooting.
+        </li>
+        <li>
+          <strong>Support/Contact:</strong> messages you send via forms or email.
+        </li>
+      </ul>
 
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-8 mb-4">1. Information We Collect</h2>
-              <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
-                <li><strong className="text-gray-900 dark:text-white">Account Information:</strong> name, email, phone number, password (hashed), referral code.</li>
-                <li><strong className="text-gray-900 dark:text-white">Profile/Student Data:</strong> level progression, badges, leaderboard placement, high‑score quizzes count, quiz best scores, total quizzes played.</li>
-                <li><strong className="text-gray-900 dark:text-white">Quiz Activity:</strong> quiz attempts, scores, timings, and related analytics used to calculate levels, leaderboard ranks, and rewards eligibility.</li>
-                <li><strong className="text-gray-900 dark:text-white">Rewards & Wallet:</strong> locked/unlocked/claimed rewards history, claimable balance, and monthly rewards processing status.</li>
-                <li><strong className="text-gray-900 dark:text-white">Bank/Withdrawal Details (optional):</strong> if you provide bank information for rewards withdrawal, we store it securely and use it only for payout verification and processing.</li>
-                <li><strong className="text-gray-900 dark:text-white">Subscription & Payments:</strong> plan details and payment status handled via secure third‑party processors (e.g., Razorpay). We do not store full card/UPI details.</li>
-                <li><strong className="text-gray-900 dark:text-white">Device/Log Data:</strong> IP, browser type, device information, timestamps, and limited logs for security and troubleshooting.</li>
-                <li><strong className="text-gray-900 dark:text-white">Support/Contact:</strong> messages you send via forms or email.</li>
-              </ul>
+      <h2 className="text-xl font-semibold mt-6 mb-2 text-gray-900 dark:text-white">2) How We Use Your Information</h2>
+      <ul className="list-disc pl-6 space-y-2">
+        <li>To create and manage your account, authenticate logins, and provide core features.</li>
+        <li>To run quizzes, compute scores, determine level progression, and show leaderboard rankings.</li>
+        <li>To process rewards, including the <strong>Monthly Rewards System</strong>:
+          <ul className="list-disc pl-6 mt-1 space-y-1">
+            <li><strong>Monthly:</strong> Top 3 eligible users at (Level 10 and Minimum 110 Quizzes with ≥75% Accuracy) win ₹9,999 each</li>
+            <li><strong>Eligibility:</strong> Must reach Level 10 and minimum 110 quizzes ≥75% accuracy in the current month</li>
+            <li><strong>Reset:</strong> Progress and rewards reset every month on the 1st</li>
+          </ul>
+        </li>
+        <li>To send important updates (e.g., account notices, reward status, subscription reminders).</li>
+        <li>To improve platform performance, safety, and user experience.</li>
+      </ul>
 
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-8 mb-4">2. How We Use Your Information</h2>
-              <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
-                <li>To create and manage your account, authenticate logins, and provide core features.</li>
-                <li>To run quizzes, compute scores, determine level progression, and show leaderboard rankings.</li>
-                <li>To process rewards, including the <strong className="text-gray-900 dark:text-white">Monthly Rewards System</strong>:
-                  <ul className="list-disc pl-6 mt-2 space-y-1">
-                    <li><strong className="text-gray-900 dark:text-white">Monthly:</strong> Top 3 eligible users at (Level 10 and Minimum 110 Quizzes with ≥75% Accuracy) win ₹9,999 each</li>
-                    <li><strong className="text-gray-900 dark:text-white">Eligibility:</strong> Must reach Level 10 and minimum 110 quizzes ≥75% accuracy in the current month</li>
-                    <li><strong className="text-gray-900 dark:text-white">Reset:</strong> Progress and rewards reset every month on the 1st</li>
-                  </ul>
-                </li>
-                <li>To process subscription payments and manage your plan access.</li>
-                <li>To provide customer support and respond to your inquiries.</li>
-                <li>To improve our platform, develop new features, and ensure security.</li>
-                <li>To comply with legal obligations and protect our rights.</li>
-              </ul>
+      <h2 className="text-xl font-semibold mt-6 mb-2 text-gray-900 dark:text-white">3) Sharing & Third‑Party Services</h2>
+      <ul className="list-disc pl-6 space-y-2">
+        <li>
+          <strong>Payments:</strong> We use trusted payment processors (e.g., Razorpay) to handle subscription payments securely. Necessary transaction data is shared with them to complete payment processing.
+        </li>
+        <li>
+          <strong>Email/SMS:</strong> We may use reputable communication providers to deliver OTPs, receipts, or important notifications.
+        </li>
+        <li>
+          <strong>No Ads/No Sale of Data:</strong> We do not sell your personal information or share it for third‑party advertising.
+        </li>
+        <li>
+          <strong>Legal/Safety:</strong> We may disclose information if required by law or to protect users, our rights, and the platform.
+        </li>
+      </ul>
 
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-8 mb-4">3. Information Sharing</h2>
-              <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
-                <li><strong className="text-gray-900 dark:text-white">Public Leaderboards:</strong> Your username, level, and quiz performance may appear on public leaderboards.</li>
-                <li><strong className="text-gray-900 dark:text-white">Payment Processors:</strong> We share necessary payment information with secure third-party processors to process your subscriptions.</li>
-                <li><strong className="text-gray-900 dark:text-white">Legal Requirements:</strong> We may disclose information when required by law or to protect our rights and users.</li>
-                <li><strong className="text-gray-900 dark:text-white">Business Transfers:</strong> In case of merger or acquisition, user data may be transferred as part of business assets.</li>
-              </ul>
+      <h2 className="text-xl font-semibold mt-6 mb-2 text-gray-900 dark:text-white">4) Data Security</h2>
+      <p className="mb-4">
+        We use industry‑standard safeguards to protect data in transit and at rest where applicable (e.g., HTTPS, hashed passwords, access controls). Only authorized personnel/business partners with a need to know may access relevant data. No method of transmission or storage is 100% secure; however, we continuously improve our protections.
+      </p>
 
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-8 mb-4">4. Data Security</h2>
-              <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
-                <li>We use industry-standard encryption and security measures to protect your data.</li>
-                <li>Passwords are hashed and never stored in plain text.</li>
-                <li>Financial information is handled by secure third-party payment processors.</li>
-                <li>We regularly update our security practices and monitor for potential threats.</li>
-              </ul>
+      <h2 className="text-xl font-semibold mt-6 mb-2 text-gray-900 dark:text-white">5) Data Retention</h2>
+      <ul className="list-disc pl-6 space-y-2">
+        <li>Account, quiz, and rewards records are retained for service continuity, audits, and legal compliance.</li>
+        <li>Bank details (if provided) are retained only as long as necessary for payouts and compliance, or until you request deletion (subject to legal requirements).</li>
+        <li>Transaction logs are retained as required by applicable laws and platform security needs.</li>
+      </ul>
 
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-8 mb-4">5. Your Rights</h2>
-              <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
-                <li>You can access, update, or delete your account information at any time.</li>
-                <li>You can opt out of promotional communications while keeping essential service messages.</li>
-                <li>You can request a copy of your data or its deletion, subject to legal and business requirements.</li>
-                <li>You can contact us with privacy concerns or questions about your data.</li>
-              </ul>
+      <h2 className="text-xl font-semibold mt-6 mb-2 text-gray-900 dark:text-white">6) Your Rights & Choices</h2>
+      <ul className="list-disc pl-6 space-y-2">
+        <li>Access, update, or correct your profile information.</li>
+        <li>Request deletion of optional data (e.g., bank details) where not legally required to retain.</li>
+        <li>Export your data upon reasonable request.</li>
+        <li>Opt out of non‑essential communications.</li>
+      </ul>
 
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-8 mb-4">6. Data Retention</h2>
-              <p className="text-gray-700 dark:text-gray-300 mb-4">
-                We retain your information as long as your account is active or as needed to provide services. Quiz data and leaderboard information may be retained for longer periods to maintain platform integrity and historical records.
-              </p>
+      <h2 className="text-xl font-semibold mt-6 mb-2 text-gray-900 dark:text-white">7) Cookies & Authentication</h2>
+      <p className="mb-4">
+        We use essential cookies/tokens for authentication and session management. Disabling them may limit functionality such as login persistence.
+      </p>
 
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-8 mb-4">7. Changes to Privacy Policy</h2>
-              <p className="text-gray-700 dark:text-gray-300">
-                We may update this Privacy Policy from time to time. We will notify users of significant changes via email or platform notifications. Continued use of SUBG QUIZ after changes constitutes acceptance of the updated policy.
-              </p>
+      <h2 className="text-xl font-semibold mt-6 mb-2 text-gray-900 dark:text-white">8) Eligibility (Students)</h2>
+      <p className="mb-4">
+        You must be <strong>18 years or older</strong> to use SUBG QUIZ. By registering, you confirm that you meet this requirement.
+      </p>
 
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-8 mb-4">8. Contact Us</h2>
-              <p className="text-gray-700 dark:text-gray-300">
-                If you have questions about this Privacy Policy or our data practices, please contact us at <strong className="text-gray-900 dark:text-white">subgquiz@gmail.com</strong>.
-              </p>
-            </div>
-          </div>
-        </div>
+      <h2 className="text-xl font-semibold mt-6 mb-2 text-gray-900 dark:text-white">9) Changes to This Policy</h2>
+      <p className="mb-4">
+        We may update this policy to reflect product, legal, or security changes. The updated version will be posted here with a revised date. Continued use of SUBG QUIZ after updates constitutes acceptance of the revised policy.
+      </p>
+
+      <h2 className="text-xl font-semibold mt-6 mb-2 text-gray-900 dark:text-white">10) Contact Us</h2>
+      <p>
+        For privacy questions or requests, please contact: <strong>support@mohdsazidkhan.com</strong>
+      </p>
       </div>
-
-      <UnifiedFooter />
     </div>
-  )
-}
+    {/* Desktop Footer */}
+    <UnifiedFooter />
+  </MobileAppWrapper>
+);
 
-export default PrivacyPolicy
+export default PrivacyPolicy;

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useGlobalError } from '../contexts/GlobalErrorContext';
 import { useTokenValidation } from '../hooks/useTokenValidation';
-import API from '../utils/api';
+import API from '../lib/api'
 import { FaBell, FaCheck, FaTimes, FaTrash, FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const NotificationsPage = () => {
@@ -32,9 +32,7 @@ const NotificationsPage = () => {
   const markAsRead = async (notificationId) => {
     try {
       setMarkingAsRead(notificationId);
-      await API.request(`/api/student/notifications/${notificationId}/read`, {
-        method: 'PUT'
-      });
+      await API.markNotificationAsRead(notificationId);
       
       setNotifications(prev => 
         prev.map(notification => 
@@ -66,9 +64,7 @@ const NotificationsPage = () => {
 
   const deleteNotification = async (notificationId) => {
     try {
-      await API.request(`/api/student/notifications/${notificationId}`, {
-        method: 'DELETE'
-      });
+      await API.deleteNotification(notificationId);
       
       setNotifications(prev => 
         prev.filter(notification => notification.id !== notificationId)

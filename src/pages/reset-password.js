@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import API from '../utils/api';
+import API from '../lib/api'
 import { toast } from 'react-hot-toast';
 import { FaLock, FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa';
 import MobileAppWrapper from '../components/MobileAppWrapper';

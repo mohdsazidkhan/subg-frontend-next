@@ -1,65 +1,75 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import API from '../../lib/api'
-import { toast } from 'react-toastify'
-import { FaArrowLeft, FaCalendarAlt, FaUser, FaEye, FaHeart, FaShare, FaBookmark } from 'react-icons/fa'
-import MobileAppWrapper from '../MobileAppWrapper'
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import API from '../../lib/api';
+import MobileAppWrapper from '../MobileAppWrapper';
+import Sidebar from '../Sidebar';
+import { useSelector } from 'react-redux';
+import UnifiedNavbar from '../UnifiedNavbar';
+import UnifiedFooter from '../UnifiedFooter';
 
 const ArticleDetailPage = ({ slug }) => {
-  const router = useRouter()
-  const [article, setArticle] = useState(null)
-  const [relatedArticles, setRelatedArticles] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [liked, setLiked] = useState(false)
-  const [bookmarked, setBookmarked] = useState(false)
+  const [article, setArticle] = useState(null);
+  const [relatedArticles, setRelatedArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [liked, setLiked] = useState(false);
+
+  const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('userInfo') || 'null') : null;
+  const isOpen = useSelector((state) => state.sidebar?.isOpen);
+  const router = useRouter();
 
   useEffect(() => {
     if (slug) {
-      fetchArticle()
+      fetchArticle();
     }
-  }, [slug])
+  }, [slug]);
 
   const fetchArticle = async () => {
     try {
-      setLoading(true)
-      const response = await API.getArticleBySlug(slug)
-      if (response.success) {
-        setArticle(response.data)
-        setRelatedArticles(response.data.relatedArticles || [])
-        setLiked(response.data.liked || false)
-        setBookmarked(response.data.bookmarked || false)
+      setLoading(true);
+      setError(null);
+      
+      const response = await API.getArticleBySlug(slug);
+      setArticle(response.data);
+      
+      // Fetch related articles from the same category
+      if (response.data.category) {
+        fetchRelatedArticles(response.data.category._id);
       }
-    } catch (error) {
-      console.error('Error fetching article:', error)
-      toast.error('Failed to load article')
+    } catch (err) {
+      console.error('Error fetching article:', err);
+      setError('Article not found');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
+
+  const fetchRelatedArticles = async (categoryId) => {
+    try {
+      const response = await API.getArticlesByCategory(categoryId, { limit: 3 });
+      setRelatedArticles(response.data.articles || []);
+    } catch (err) {
+      console.error('Error fetching related articles:', err);
+    }
+  };
 
   const handleLike = async () => {
+    if (!article || liked) return;
+    
     try {
-      const response = await API.incrementArticleLikes(article._id)
-      if (response.success) {
-        setLiked(!liked)
-        setArticle(prev => ({
-          ...prev,
-          likes: liked ? prev.likes - 1 : prev.likes + 1
-        }))
-      }
-    } catch (error) {
-      console.error('Error liking article:', error)
-      toast.error('Failed to like article')
+      await API.incrementArticleLikes(article._id);
+      setLiked(true);
+      setArticle(prev => ({
+        ...prev,
+        likes: prev.likes + 1
+      }));
+    } catch (err) {
+      console.error('Error liking article:', err);
     }
-  }
-
-  const handleBookmark = async () => {
-    // TODO: Implement bookmark functionality when API is available
-    setBookmarked(!bookmarked)
-    toast.success(bookmarked ? 'Removed from bookmarks' : 'Added to bookmarks')
-  }
+  };
 
   const handleShare = () => {
     if (navigator.share) {
@@ -67,216 +77,274 @@ const ArticleDetailPage = ({ slug }) => {
         title: article.title,
         text: article.excerpt,
         url: window.location.href
-      })
+      });
     } else {
-      navigator.clipboard.writeText(window.location.href)
-      toast.success('Article link copied to clipboard!')
+      navigator.clipboard.writeText(window.location.href);
+      // You can add toast notification here if needed
     }
-  }
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
 
   if (loading) {
     return (
       <MobileAppWrapper title="Loading Article">
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
+        <div className={`mainContent ${isOpen ? 'showPanel' : 'hidePanel'}`}>
+          {user && user.role === 'admin' && <Sidebar />}
+          <div className="p-4 w-full text-gray-900 dark:text-white">
+            <div className="flex items-center justify-center h-64">
+              <div className="flex items-center space-x-3">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
+                <div className="text-lg">Loading article...</div>
+              </div>
+            </div>
+          </div>
         </div>
       </MobileAppWrapper>
-    )
+    );
   }
 
-  if (!article) {
+  if (error || !article) {
     return (
       <MobileAppWrapper title="Article Not Found">
-        <div className="p-4 text-center">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-            Article Not Found
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            The article you're looking for doesn't exist.
-          </p>
-          <button
-            onClick={() => router.push('/articles')}
-            className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-3 rounded-lg font-medium"
-          >
-            Go to Articles
-          </button>
+        <div className={`mainContent ${isOpen ? 'showPanel' : 'hidePanel'}`}>
+          {user && user.role === 'admin' && <Sidebar />}
+          <div className="p-4 w-full text-gray-900 dark:text-white">
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">📝</div>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                Article Not Found
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                The article you're looking for doesn't exist or has been removed.
+              </p>
+              <Link
+                href="/articles"
+                className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+              >
+                Browse All Articles
+              </Link>
+            </div>
+          </div>
         </div>
       </MobileAppWrapper>
-    )
+    );
   }
 
   return (
     <MobileAppWrapper title={article.title}>
-      <div className="p-4">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={() => router.back()}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
-            >
-              <FaArrowLeft className="text-gray-600 dark:text-gray-400" />
-            </button>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">Article</h1>
-          </div>
-        </div>
+      {/* Desktop Header */}
+      <UnifiedNavbar />
+      <div className="min-h-screen bg-subg-light dark:bg-subg-dark">
+        <div className={`mainContent ${isOpen ? 'showPanel' : 'hidePanel'}`}>
+          {user && user.role === 'admin' && <Sidebar />}
+          <div className="max-w-4xl mx-auto p-4 text-gray-900 dark:text-white">
+            {/* Breadcrumb */}
+            <nav className="mb-6">
+              <ol className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+                <li><Link href="/" className="hover:text-yellow-600 dark:hover:text-yellow-400">Home</Link></li>
+                <li>•</li>
+                <li><Link href="/articles" className="hover:text-yellow-600 dark:hover:text-yellow-400">Articles</Link></li>
+                <li>•</li>
+                <li className="text-gray-900 dark:text-white">{article.title?.length > 25 ? article.title?.slice(0, 25) + '...' : article.title}</li>
+              </ol>
+            </nav>
 
-        {/* Article Header */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-            {article.title}
-          </h1>
-
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-              <div className="flex items-center space-x-1">
-                <FaUser />
-                <span>{article.author?.name || 'Unknown'}</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <FaCalendarAlt />
-                <span>{new Date(article.createdAt).toLocaleDateString()}</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <FaEye />
-                <span>{article.views || 0} views</span>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={handleLike}
-                className={`p-2 rounded-lg ${
-                  liked 
-                    ? 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-400' 
-                    : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
-                }`}
-              >
-                <FaHeart />
-              </button>
-              <button
-                onClick={handleBookmark}
-                className={`p-2 rounded-lg ${
-                  bookmarked 
-                    ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-400' 
-                    : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
-                }`}
-              >
-                <FaBookmark />
-              </button>
-              <button
-                onClick={handleShare}
-                className="p-2 rounded-lg bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
-              >
-                <FaShare />
-              </button>
-            </div>
-          </div>
-
-          {article.featuredImage && (
-            <div className="mb-6">
-              <img
-                src={article.featuredImage}
-                alt={article.title}
-                className="w-full h-64 object-cover rounded-lg"
-              />
-            </div>
-          )}
-
-          {article.tags && article.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-6">
-              {article.tags.map((tag, index) => (
-                <span
-                  key={index}
-                  className="px-3 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full text-sm font-medium"
-                >
-                  {tag}
+            {/* Article Header */}
+            <header className="mb-8">
+              <div className="flex items-center mb-4">
+                {article.isFeatured && (
+                  <span className="text-yellow-500 text-sm font-medium mr-3">⭐ Featured</span>
+                )}
+                {article.isPinned && (
+                  <span className="text-blue-500 text-sm font-medium mr-3">📌 Pinned</span>
+                )}
+                <span className="text-gray-500 dark:text-gray-400 text-sm">
+                  {formatDate(article.publishedAt || article.createdAt)}
                 </span>
-              ))}
-            </div>
-          )}
-        </div>
+              </div>
+              
+              <h1 className="text-xl md:text-2xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                {article.title}
+              </h1>
+              
+              {article.excerpt && (
+                <p className="text-md lg:text-xl text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
+                  {article.excerpt}
+                </p>
+              )}
 
-        {/* Article Content */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-          <div 
-            className="prose prose-lg max-w-none dark:prose-invert"
-            dangerouslySetInnerHTML={{ __html: article.content }}
-          />
-        </div>
-
-        {/* Article Actions */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={handleLike}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium ${
-                  liked 
-                    ? 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-400' 
-                    : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
-                }`}
-              >
-                <FaHeart />
-                <span>{article.likes || 0}</span>
-              </button>
-              <button
-                onClick={handleBookmark}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium ${
-                  bookmarked 
-                    ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-400' 
-                    : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
-                }`}
-              >
-                <FaBookmark />
-                <span>{bookmarked ? 'Bookmarked' : 'Bookmark'}</span>
-              </button>
-            </div>
-            <button
-              onClick={handleShare}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium"
-            >
-              <FaShare />
-              <span>Share</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Related Articles */}
-        {relatedArticles.length > 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Related Articles
-            </h3>
-            <div className="space-y-4">
-              {relatedArticles.map((relatedArticle) => (
-                <div
-                  key={relatedArticle._id}
-                  className="flex items-center space-x-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
-                  onClick={() => router.push(`/articles/${relatedArticle.slug}`)}
-                >
-                  {relatedArticle.featuredImage && (
-                    <img
-                      src={relatedArticle.featuredImage}
-                      alt={relatedArticle.title}
-                      className="w-16 h-16 object-cover rounded-lg"
-                    />
-                  )}
-                  <div className="flex-1">
-                    <h4 className="font-medium text-gray-900 dark:text-white mb-1">
-                      {relatedArticle.title}
-                    </h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-                      {relatedArticle.excerpt}
-                    </p>
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center">
+                      <span className="text-white font-medium text-sm">
+                        {article.author?.name?.charAt(0) || 'A'}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {article.author?.name || 'Anonymous'}
+                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Author
+                      </p>
+                    </div>
                   </div>
                 </div>
-              ))}
+                
+                <div className="flex items-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
+                  <span>👁️ {article.views || 0} views</span>
+                  <span>❤️ {article.likes || 0} likes</span>
+                  <span>⏱️ {article.readingTime || 5} min read</span>
+                </div>
+              </div>
+            </header>
+
+            {/* Featured Image */}
+            {article.featuredImage && (
+              <div className="mb-8">
+                <img
+                  src={article.featuredImage}
+                  alt={article.featuredImageAlt || article.title}
+                  className="w-full h-42 md:h-96 object-cover rounded-lg shadow-lg"
+                />
+              </div>
+            )}
+
+            {/* Article Content */}
+            <article className="prose prose-lg max-w-none mb-0 lg:mb-8">
+              <div 
+                className="text-gray-900 dark:text-white leading-relaxed"
+                dangerouslySetInnerHTML={{ 
+                  __html: article.content.replace(/\n/g, '<br />') 
+                }}
+              />
+            </article>
+
+            {/* Article Actions */}
+            <div className="flex flex-col lg:flex-row items-center justify-between py-6 border-t border-b border-gray-200 dark:border-gray-700 mb-0 lg:mb-4">
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={handleLike}
+                  disabled={liked}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+                    liked 
+                      ? 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400' 
+                      : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-900/20 dark:hover:text-red-400'
+                  }`}
+                >
+                  <span>{liked ? '❤️' : '🤍'}</span>
+                  <span>{liked ? 'Liked' : 'Like'}</span>
+                </button>
+                
+                <button 
+                  onClick={handleShare}
+                  className="flex items-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                >
+                  <span>📤</span>
+                  <span>Share</span>
+                </button>
+              </div>
+
+              {article.category && (
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-gray-500 dark:text-gray-400">Category:</span>
+                  <Link
+                    href={`/articles/category/${article.category._id}`}
+                    className="bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-400 text-sm px-3 py-1 rounded-full hover:bg-yellow-200 dark:hover:bg-yellow-800/30"
+                  >
+                    {article.category.name}
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Tags */}
+            {article.tags && article.tags.length > 0 && (
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Tags</h3>
+                <div className="flex flex-wrap gap-2">
+                  {article.tags.map((tag, index) => (
+                    <Link
+                      key={index}
+                      href={`/articles/tag/${encodeURIComponent(tag)}`}
+                      className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm px-3 py-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600"
+                    >
+                      #{tag}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Related Articles */}
+            {relatedArticles?.filter(relatedArticle => relatedArticle._id !== article._id).length > 0 && (
+              <div className="mb-8">
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                  Related Articles
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {relatedArticles
+                    ?.filter(relatedArticle => relatedArticle._id !== article._id)
+                    ?.slice(0, 3)
+                    ?.map((relatedArticle) => (
+                      <Link
+                        key={relatedArticle._id}
+                        href={`/articles/${relatedArticle.slug}`}
+                        className="group bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden border border-gray-200 dark:border-gray-700"
+                      >
+                        {relatedArticle.featuredImage && (
+                          <div className="aspect-w-16 aspect-h-9">
+                            <img
+                              src={relatedArticle.featuredImage}
+                              alt={relatedArticle.featuredImageAlt || relatedArticle.title}
+                              className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                          </div>
+                        )}
+                        <div className="p-4">
+                          <h4 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-yellow-600 dark:group-hover:text-yellow-400 transition-colors mb-2">
+                            {relatedArticle.title}
+                          </h4>
+                          <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
+                            {relatedArticle.excerpt || relatedArticle.content?.substring(0, 100) + '...'}
+                          </p>
+                          <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+                            <span>{formatDate(relatedArticle.publishedAt || relatedArticle.createdAt)}</span>
+                            <span>⏱️ {relatedArticle.readingTime || 5} min</span>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                </div>
+              </div>
+            )}
+
+            {/* Back to Articles */}
+            <div className="text-center">
+              <Link
+                href="/articles"
+                className="inline-flex items-center space-x-2 bg-gradient-to-r from-yellow-500 to-red-500 text-white 
+                dark:from-yellow-600 dark:to-red-700 px-3 lg:px-6 py-2 lg:py-3 rounded-lg font-medium transition-colors"
+              >
+                <span>←</span>
+                <span>Go Back</span>
+              </Link>
             </div>
           </div>
-        )}
+        </div>
       </div>
+      {/* Desktop Footer */}
+      <UnifiedFooter />
     </MobileAppWrapper>
-  )
-}
+  );
+};
 
-export default ArticleDetailPage
+export default ArticleDetailPage;

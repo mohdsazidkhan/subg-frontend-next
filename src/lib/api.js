@@ -676,6 +676,40 @@ class ApiService {
       method: 'POST'
     });
   }
+
+  // Student Rewards
+  async getStudentRewards(userId) {
+    return this.request(`/api/student/rewards/${userId}`);
+  }
+
+  async claimReward(rewardId) {
+    return this.request(`/api/student/rewards/${rewardId}/claim`, {
+      method: 'POST'
+    });
+  }
+
+  // Student Quiz History
+  async getStudentQuizHistory(params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    return this.request(`/api/student/quiz-history?${queryString}`);
+  }
+
+  // Student Notifications
+  async getStudentNotifications() {
+    return this.request('/api/student/notifications');
+  }
+
+  async markNotificationAsRead(notificationId) {
+    return this.request(`/api/student/notifications/${notificationId}/read`, {
+      method: 'PUT'
+    });
+  }
+
+  async deleteNotification(notificationId) {
+    return this.request(`/api/student/notifications/${notificationId}`, {
+      method: 'DELETE'
+    });
+  }
 }
 
 const API = new ApiService();

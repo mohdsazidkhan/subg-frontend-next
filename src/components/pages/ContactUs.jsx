@@ -1,6 +1,4 @@
-'use client'
-
-import React, { useState } from 'react'
+import { useState } from "react";
 import {
   FaEnvelope,
   FaPhone,
@@ -10,6 +8,9 @@ import {
   FaHeadset,
   FaComments,
   FaRocket,
+} from "react-icons/fa";
+import MobileAppWrapper from '../MobileAppWrapper';
+import {
   FaFacebookF,
   FaTwitter,
   FaInstagram,
@@ -18,10 +19,9 @@ import {
   FaWhatsapp,
   FaDiscord,
   FaTelegramPlane,
-} from 'react-icons/fa'
-import UnifiedNavbar from '../UnifiedNavbar'
-import UnifiedFooter from '../UnifiedFooter'
-import { toast } from 'react-toastify'
+} from "react-icons/fa";
+import UnifiedNavbar from '../UnifiedNavbar';
+import UnifiedFooter from '../UnifiedFooter';
 
 // Define social links from .env
 const socialLinks = [
@@ -33,7 +33,7 @@ const socialLinks = [
   { icon: <FaWhatsapp />, url: process.env.NEXT_PUBLIC_WHATSAPP_URL },
   { icon: <FaDiscord />, url: process.env.NEXT_PUBLIC_DISCORD_URL },
   { icon: <FaTelegramPlane />, url: process.env.NEXT_PUBLIC_TELEGRAM_URL },
-]
+];
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({
@@ -41,14 +41,15 @@ const ContactUs = () => {
     email: "",
     subject: "",
     message: "",
-  })
-  const [isLoading, setIsLoading] = useState(false)
+  });
+  const [status, setStatus] = useState(null);
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setStatus(null);
     try {
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+      const API_BASE_URL =
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
       const response = await fetch(`${API_BASE_URL}/api/contacts`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -57,238 +58,288 @@ const ContactUs = () => {
           email: formData.email,
           message: `Subject: ${formData.subject}\n${formData.message}`,
         }),
-      })
-      const data = await response.json()
+      });
+      const data = await response.json();
       if (data.success) {
-        toast.success('Message sent successfully!')
-        setFormData({ name: "", email: "", subject: "", message: "" })
+        setStatus("success");
+        setFormData({ name: "", email: "", subject: "", message: "" });
       } else {
-        toast.error('Failed to send message. Please try again.')
+        setStatus("error");
       }
     } catch (error) {
-      console.error('Contact form error:', error)
-      toast.error('Failed to send message. Please try again.')
-    } finally {
-      setIsLoading(false)
+      setStatus("error");
     }
-  }
+  };
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
-    })
-  }
+    });
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <MobileAppWrapper title="Contact Us">
+      {/* Desktop Header */}
       <UnifiedNavbar />
-      
-      <div className="pt-20 pb-8 px-4">
-        <div className="max-w-6xl mx-auto">
-          {/* Hero Section */}
-          <div className="text-center mb-12">
-            <div className="w-20 h-20 bg-gradient-to-r from-yellow-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
-              <FaComments className="text-white text-3xl" />
+      <div className="min-h-screen bg-subg-light dark:bg-subg-dark">
+      <div className="container mx-auto px-4 py-4 lg:py-8 mt-0 lg:mt-8">
+        {/* Hero Section */}
+        <div className="text-center mb-4 lg:mb-12">
+          <div className="w-16 lg:w-24 h-16 lg:h-24 bg-gradient-to-r from-yellow-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
+            <FaComments className="text-white text-3xl" />
+          </div>
+          <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-yellow-600 via-red-600 to-yellow-700 bg-clip-text text-transparent mb-4">
+            Get in Touch
+          </h1>
+          <p className="text-md lg:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            Have questions about our quiz platform? We'd love to hear from you.
+            Send us a message and we'll respond as soon as possible.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          {/* Contact Information */}
+          <div className="space-y-8">
+            <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-3xl shadow-2xl px-2 py-4 md:p-8 border border-white/20">
+              <h2 className="text-xl md:text-3xl font-bold text-gray-800 dark:text-white mb-6">
+                Contact Information
+              </h2>
+
+              <div className="space-y-6">
+                <div className="flex items-center space-x-4 p-4 bg-gradient-to-r from-yellow-50 to-red-50 dark:from-yellow-900/30 dark:to-red-900/30 rounded-2xl border border-yellow-200 dark:border-yellow-700">
+                  <div className="w-8 lg:w-12 h-8 lg:h-12 bg-gradient-to-r from-yellow-500 to-red-500 rounded-xl flex items-center justify-center">
+                    <FaEnvelope className="text-white text-xl" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-800 dark:text-white">
+                      Email
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-300">
+                      support@mohdsazidkhan.com
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-4 p-4 bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-900/30 dark:to-teal-900/30 rounded-2xl border border-green-200 dark:border-green-700">
+                  <div className="w-8 lg:w-12 h-8 lg:h-12 bg-gradient-to-r from-green-500 to-teal-500 rounded-xl flex items-center justify-center">
+                    <FaPhone className="text-white text-xl" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-800 dark:text-white">
+                      Phone
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-300">
+                      +91 7678 13 1912
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-4 p-4 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/30 dark:to-red-900/30 rounded-2xl border border-orange-200 dark:border-orange-700">
+                  <div className="w-8 lg:w-12 h-8 lg:h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
+                    <FaMapMarkerAlt className="text-white text-xl" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-800 dark:text-white">
+                      Address
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-300">
+                      Badarpur, Delhi, India
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-4 p-4 bg-gradient-to-r from-yellow-50 to-red-50 dark:from-yellow-900/30 dark:to-red-900/30 rounded-2xl border border-yellow-200 dark:border-yellow-700">
+                  <div className="w-8 lg:w-12 h-8 lg:h-12 bg-gradient-to-r from-yellow-500 to-red-500 rounded-xl flex items-center justify-center">
+                    <FaClock className="text-white text-xl" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-800 dark:text-white">
+                      Business Hours
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-300">
+                      Mon - Fri: 9:00 AM - 9:00 PM
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-yellow-600 via-red-600 to-yellow-700 bg-clip-text text-transparent mb-4">
-              Get in Touch
-            </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Have questions about our quiz platform? We'd love to hear from you.
-              Send us a message and we'll respond as soon as possible.
-            </p>
+
+            {/* Quick Support */}
+            <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 border border-white/20">
+              <div className="text-center">
+                <div className="w-10 lg:w-16 h-10 lg:h-16 bg-gradient-to-r from-green-500 to-yellow-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <FaHeadset className="text-white text-2xl" />
+                </div>
+                <h3 className="text-xl lg:text-2xl font-bold text-gray-800 dark:text-white mb-4">
+                  Need Immediate Help?
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300 mb-6">
+                  Our support team is available 24/7 to assist you with any
+                  questions or issues.
+                </p>
+                <button className="bg-gradient-to-r from-green-500 to-yellow-500 text-white px-3 lg:px-6 py-2 lg:py-3 rounded-xl font-semibold hover:from-green-600 hover:to-yellow-600 transition-all duration-300 transform hover:scale-105">
+                  Live Chat Support
+                </button>
+              </div>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* Contact Information */}
-            <div className="space-y-8">
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Contact Information</h2>
-                
-                <div className="space-y-6">
-                  <div className="flex items-center">
-                    <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mr-4">
-                      <FaEnvelope className="text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-white">Email</h3>
-                      <p className="text-gray-600 dark:text-gray-300">subgquiz@gmail.com</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center">
-                    <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mr-4">
-                      <FaPhone className="text-green-600 dark:text-green-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-white">Phone</h3>
-                      <p className="text-gray-600 dark:text-gray-300">+91-7678131912</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center">
-                    <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mr-4">
-                      <FaMapMarkerAlt className="text-purple-600 dark:text-purple-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-white">Address</h3>
-                      <p className="text-gray-600 dark:text-gray-300">Delhi, India</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center">
-                    <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center mr-4">
-                      <FaClock className="text-orange-600 dark:text-orange-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-white">Response Time</h3>
-                      <p className="text-gray-600 dark:text-gray-300">Within 24 hours</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Social Links */}
-                <div className="mt-8">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Follow Us</h3>
-                  <div className="flex flex-wrap gap-3">
-                    {socialLinks.map((item, index) => (
-                      <a
-                        key={index}
-                        href={item.url || "#"}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-10 h-10 bg-gradient-to-r from-yellow-500 to-red-500 rounded-lg flex items-center justify-center text-white hover:scale-110 transition-transform"
-                      >
-                        {item.icon}
-                      </a>
-                    ))}
-                  </div>
-                </div>
+          {/* Contact Form */}
+          <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-3xl shadow-2xl px-2 py-4 md:p-8 border border-white/20">
+            <div className="flex items-center space-x-4 mb-6">
+              <div className="w-10 lg:w-16 h-10 lg:h-16 bg-gradient-to-r from-yellow-500 to-red-500 rounded-2xl flex items-center justify-center">
+                <FaPaperPlane className="text-white text-2xl" />
               </div>
-
-              {/* Quick Help */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Quick Help</h2>
-                <div className="space-y-4">
-                  <div className="flex items-start">
-                    <FaHeadset className="text-blue-600 dark:text-blue-400 mt-1 mr-3" />
-                    <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-white">Support</h3>
-                      <p className="text-gray-600 dark:text-gray-300 text-sm">Get help with your account or quiz issues</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start">
-                    <FaRocket className="text-green-600 dark:text-green-400 mt-1 mr-3" />
-                    <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-white">Feedback</h3>
-                      <p className="text-gray-600 dark:text-gray-300 text-sm">Share your thoughts and suggestions</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start">
-                    <FaComments className="text-purple-600 dark:text-purple-400 mt-1 mr-3" />
-                    <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-white">Partnership</h3>
-                      <p className="text-gray-600 dark:text-gray-300 text-sm">Interested in collaborating with us?</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <h2 className="text-xl md:text-3xl font-bold text-gray-800 dark:text-white">
+                Send Message
+              </h2>
             </div>
 
-            {/* Contact Form */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Send us a Message</h2>
-              
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Full Name
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                      placeholder="Your full name"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                      placeholder="your.email@example.com"
-                    />
-                  </div>
-                </div>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                  placeholder="Enter your full name"
+                />
+              </div>
 
-                <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Subject
-                  </label>
-                  <input
-                    type="text"
-                    id="subject"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                    placeholder="What's this about?"
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-300"
+                  placeholder="Enter your email address"
+                />
+              </div>
 
-                <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Message
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    required
-                    rows={6}
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                    placeholder="Tell us how we can help you..."
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Subject
+                </label>
+                <input
+                  type="text"
+                  name="subject"
+                  value={formData.subject}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                  placeholder="Enter subject"
+                />
+              </div>
 
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Message
+                </label>
+                <textarea
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
+                  required
+                  rows="5"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 resize-none"
+                  placeholder="Enter your message here..."
+                />
+              </div>
+
+              {status === "success" && (
+                <div className="text-green-600 dark:text-green-400 font-semibold">
+                  Message sent successfully!
+                </div>
+              )}
+              {status === "error" && (
+                <div className="text-red-600 dark:text-red-400 font-semibold">
+                  Failed to send message. Please try again.
+                </div>
+              )}
+
+              <button
+                type="submit"
+                className="w-full bg-gradient-to-r from-yellow-500 to-red-500 text-white py-2 lg:py-3 px-4 lg:px-6 rounded-xl font-semibold hover:from-yellow-600 hover:to-red-600 transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2"
+              >
+                <FaPaperPlane className="text-sm" />
+                <span>Send Message</span>
+              </button>
+            </form>
+            <div className="mt-8 flex flex-wrap justify-center items-center gap-2 lg:gap-4">
+              {socialLinks.map((item, index) => (
+                <a
+                  key={index}
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={item.url ? new URL(item.url).hostname : 'Social Link'}
+                  className="w-8 lg:w-11 h-8 lg:h-11 rounded-full text-white flex items-center justify-center text-xl 
+           shadow-lg transition-all duration-300 transform hover:scale-110 hover:rotate-3
+           bg-gradient-to-bl from-yellow-500 to-red-500 
+           dark:from-gray-700 dark:to-gray-900 hover:shadow-2xl"
                 >
-                  {isLoading ? (
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  ) : (
-                    <>
-                      <FaPaperPlane className="mr-2" />
-                      Send Message
-                    </>
-                  )}
-                </button>
-              </form>
+                  {item.icon}
+                </a>
+              ))}
             </div>
           </div>
         </div>
+
+        {/* Features Section */}
+        <div className="mt-4 lg:mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-8">
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+            <div className="w-10 lg:w-16 h-10 lg:h-16 bg-gradient-to-r from-yellow-500 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <FaRocket className="text-white text-2xl" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-3">
+              Fast Response
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300">
+              Get quick responses to your queries within 24 hours
+            </p>
+          </div>
+
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+            <div className="w-10 lg:w-16 h-10 lg:h-16 bg-gradient-to-r from-green-500 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <FaHeadset className="text-white text-2xl" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-3">
+              24/7 Support
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300">
+              Round-the-clock customer support for all your needs
+            </p>
+          </div>
+
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+            <div className="w-10 lg:w-16 h-10 lg:h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <FaComments className="text-white text-2xl" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-3">
+              Expert Team
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300">
+              Experienced professionals ready to help you succeed
+            </p>
+          </div>
+        </div>
       </div>
-
+      </div>
+      {/* Desktop Footer */}
       <UnifiedFooter />
-    </div>
-  )
-}
+    </MobileAppWrapper>
+  );
+};
 
-export default ContactUs
+export default ContactUs;

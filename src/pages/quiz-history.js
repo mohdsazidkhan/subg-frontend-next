@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useGlobalError } from '../contexts/GlobalErrorContext';
 import { useTokenValidation } from '../hooks/useTokenValidation';
-import API from '../utils/api';
+import API from '../lib/api'
 import ResponsiveTable from '../components/ResponsiveTable';
 import Pagination from '../components/Pagination';
 import { FaClock, FaCheckCircle, FaTimesCircle, FaTrophy, FaEye } from 'react-icons/fa';
@@ -41,7 +41,7 @@ const QuizHistoryPage = () => {
       };
 
       const queryString = new URLSearchParams(params).toString();
-      const response = await API.request(`/api/student/quiz-history?${queryString}`);
+      const response = await API.getStudentQuizHistory({ page, limit: itemsPerPage });
       setQuizHistory(response.attempts);
       setTotalPages(response.totalPages);
       setTotalItems(response.total);

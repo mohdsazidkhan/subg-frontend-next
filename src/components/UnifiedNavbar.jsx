@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useClientSide, useAuthStatus } from '../hooks/useClientSide';
 import {
   FaSun,
   FaMoon,
@@ -14,18 +15,24 @@ import { secureLogout, getCurrentUser } from '../lib/utils/authUtils';
 import { hasActiveSubscription } from '../lib/utils/subscriptionUtils';
 import { isAdmin } from '../lib/utils/adminUtils';
 
+
 const UnifiedNavbar = ({ isLandingPage = false, scrollToSection }) => {
   const router = useRouter();
-  const user = getCurrentUser();
-  
-  const [darkMode, setDarkMode] = useState(() => {
-    if (typeof window !== "undefined") {
+  const isClient = useClientSide();
+  const { user, isAuthenticated } = useAuthStatus();
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    if (isClient) {
+      // Initialize dark mode from localStorage or system preference
       const savedTheme = localStorage.getItem("theme");
-      if (savedTheme) return savedTheme === "dark";
-      if (window.matchMedia("(prefers-color-scheme: dark)").matches) return true;
+      if (savedTheme) {
+        setDarkMode(savedTheme === "dark");
+      } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        setDarkMode(true);
+      }
     }
-    return false;
-  });
+  }, [isClient]);
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -160,6 +167,7 @@ const UnifiedNavbar = ({ isLandingPage = false, scrollToSection }) => {
     </nav>
   );
 
+
   return (
     <header className={`hidden md:block fixed z-[9999] transition-all duration-300 w-full ${
       darkMode 
@@ -185,21 +193,21 @@ const UnifiedNavbar = ({ isLandingPage = false, scrollToSection }) => {
           {/* Right side */}
           <div className="flex items-center space-x-2">
             {/* Guest Links - Get Started button for non-logged in users */}
-            {!user && (
+            {isClient && !user && (
               <div className="block">
                 {guestLinks}
               </div>
             )}
 
             {/* Admin Links - Only show for admin users */}
-            {user && isAdmin() && (
+            {isClient && user && isAdmin() && (
               <div className="flex items-center space-x-2">
                 {adminLinks}
               </div>
             )}
 
             {/* Student Links - Only show for student users */}
-            {user && !isAdmin() && (
+            {isClient && user && !isAdmin() && (
               <div className="flex items-center space-x-2">
                 {studentLinks}
               </div>
@@ -210,11 +218,11 @@ const UnifiedNavbar = ({ isLandingPage = false, scrollToSection }) => {
               onClick={toggleTheme}
               className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-blue-600 p-2 shadow-lg hover:scale-105 transition-transform flex items-center justify-center"
             >
-              {darkMode ? <FaSun className="w-5 h-5 text-white" /> : <FaMoon className="w-5 h-5 text-white" />}
+              {isClient && darkMode ? <FaSun className="w-5 h-5 text-white" /> : <FaMoon className="w-5 h-5 text-white" />}
             </button>
 
             {/* Logout Button - Only show for logged-in users */}
-            {user && (
+            {isClient && user && (
               <button
                 onClick={handleLogout}
                 className="w-8 h-8 rounded-full bg-gradient-to-r from-red-500 to-orange-600 p-2 shadow-lg hover:scale-105 transition-transform flex items-center justify-center"

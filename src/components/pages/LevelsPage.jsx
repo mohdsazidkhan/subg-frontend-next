@@ -1,262 +1,197 @@
-'use client'
+'use client';
 
-import React, { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { FaTrophy, FaCrown, FaStar, FaMedal, FaRocket, FaBrain, FaChartLine, FaArrowLeft, FaAward, FaGem, FaUserGraduate, FaMagic } from 'react-icons/fa'
-import UnifiedNavbar from '../UnifiedNavbar'
-import UnifiedFooter from '../UnifiedFooter'
-import TokenValidationWrapper from '../TokenValidationWrapper'
-import StudentRoute from '../StudentRoute'
-import API from '@/lib/api'
-
-// Level badge icon mapping
-const levelBadgeIcons = {
-  'Starter': FaUserGraduate,
-  'Rookie': FaStar,
-  'Explorer': FaRocket,
-  'Thinker': FaBrain,
-  'Strategist': FaChartLine,
-  'Achiever': FaAward,
-  'Mastermind': FaGem,
-  'Champion': FaTrophy,
-  'Prodigy': FaMedal,
-  'Wizard': FaMagic,
-  'Legend': FaCrown,
-  Default: FaStar,
-}
-
-// Fallback levels data if API fails
-const fallbackLevels = [
-  { _id: 0, levelName: 'Starter', quizzesRequired: 0, quizCount: 0, description: 'Starting point for all users' },
-  { _id: 1, levelName: 'Rookie', quizzesRequired: 2, quizCount: 0, description: 'Begin your quiz journey' },
-  { _id: 2, levelName: 'Explorer', quizzesRequired: 6, quizCount: 0, description: 'Discover new challenges' },
-  { _id: 3, levelName: 'Thinker', quizzesRequired: 12, quizCount: 0, description: 'Develop critical thinking' },
-  { _id: 4, levelName: 'Strategist', quizzesRequired: 20, quizCount: 0, description: 'Master quiz strategies' },
-  { _id: 5, levelName: 'Achiever', quizzesRequired: 30, quizCount: 0, description: 'Reach new heights' },
-  { _id: 6, levelName: 'Mastermind', quizzesRequired: 42, quizCount: 0, description: 'Become a quiz expert' },
-  { _id: 7, levelName: 'Champion', quizzesRequired: 56, quizCount: 0, description: 'Compete with the best' },
-  { _id: 8, levelName: 'Prodigy', quizzesRequired: 72, quizCount: 0, description: 'Show exceptional talent' },
-  { _id: 9, levelName: 'Wizard', quizzesRequired: 90, quizCount: 0, description: 'Master of all quizzes' },
-  { _id: 10, levelName: 'Legend', quizzesRequired: 110, quizCount: 0, description: 'Achieve legendary status' }
-]
+import React, { useState, useEffect } from 'react';
+import { FaTrophy, FaStar, FaLock, FaCheckCircle, FaRocket, FaBrain, FaChartLine, FaAward } from 'react-icons/fa';
+import UnifiedNavbar from '../UnifiedNavbar';
+import UnifiedFooter from '../UnifiedFooter';
+import MobileAppWrapper from '../MobileAppWrapper';
 
 const LevelsPage = () => {
-  const router = useRouter()
-  const [userLevelData, setUserLevelData] = useState(null)
-  const [levels, setLevels] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [levels, setLevels] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [currentLevel, setCurrentLevel] = useState(1);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true)
-        const [profileRes, levelsRes] = await Promise.all([
-          API.getProfile().catch(() => null),
-          API.getAllLevels().catch(() => fallbackLevels)
-        ])
+    // Mock levels data - replace with actual API call
+    const mockLevels = [
+      { id: 1, name: 'Starter', description: 'Begin your quiz journey', requiredQuizzes: 0, unlocked: true, completed: true },
+      { id: 2, name: 'Rookie', description: 'Basic knowledge builder', requiredQuizzes: 10, unlocked: true, completed: true },
+      { id: 3, name: 'Explorer', description: 'Expand your horizons', requiredQuizzes: 25, unlocked: true, completed: false },
+      { id: 4, name: 'Thinker', description: 'Deep thinking required', requiredQuizzes: 50, unlocked: false, completed: false },
+      { id: 5, name: 'Strategist', description: 'Strategic knowledge', requiredQuizzes: 100, unlocked: false, completed: false },
+      { id: 6, name: 'Master', description: 'Master of knowledge', requiredQuizzes: 200, unlocked: false, completed: false },
+      { id: 7, name: 'Expert', description: 'Expert level achieved', requiredQuizzes: 350, unlocked: false, completed: false },
+      { id: 8, name: 'Champion', description: 'Champion status', requiredQuizzes: 500, unlocked: false, completed: false },
+      { id: 9, name: 'Legend', description: 'Legendary knowledge', requiredQuizzes: 750, unlocked: false, completed: false },
+      { id: 10, name: 'Mythical', description: 'Mythical status', requiredQuizzes: 1000, unlocked: false, completed: false },
+    ];
+    
+    setLevels(mockLevels);
+    setLoading(false);
+  }, []);
 
-        if (profileRes) {
-          setUserLevelData(profileRes)
-        }
-        setLevels(levelsRes || fallbackLevels)
-      } catch (err) {
-        console.error('Error fetching levels data:', err)
-        setError('Failed to load levels data')
-        setLevels(fallbackLevels)
-      } finally {
-        setLoading(false)
-      }
+  const getLevelIcon = (level) => {
+    switch (level) {
+      case 'Starter': return FaRocket;
+      case 'Rookie': return FaStar;
+      case 'Explorer': return FaBrain;
+      case 'Thinker': return FaChartLine;
+      case 'Strategist': return FaAward;
+      case 'Master': return FaTrophy;
+      case 'Expert': return FaTrophy;
+      case 'Champion': return FaTrophy;
+      case 'Legend': return FaTrophy;
+      case 'Mythical': return FaTrophy;
+      default: return FaStar;
     }
+  };
 
-    fetchData()
-  }, [])
-
-  const getLevelIcon = (levelName) => {
-    const IconComponent = levelBadgeIcons[levelName] || levelBadgeIcons.Default
-    return <IconComponent className="w-6 h-6" />
-  }
-
-  const getLevelColor = (level) => {
-    if (level <= 3) return 'from-green-500 to-emerald-500'
-    if (level <= 6) return 'from-blue-500 to-cyan-500'
-    if (level <= 9) return 'from-purple-500 to-violet-500'
-    return 'from-yellow-500 to-orange-500'
-  }
-
-  const isLevelUnlocked = (level) => {
-    if (!userLevelData) return level === 0
-    return level <= userLevelData.currentLevel
-  }
+  const getLevelColor = (level, unlocked, completed) => {
+    if (completed) return 'from-green-500 to-green-600';
+    if (unlocked) return 'from-blue-500 to-blue-600';
+    return 'from-gray-400 to-gray-500';
+  };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <MobileAppWrapper>
         <UnifiedNavbar />
-        <div className="flex items-center justify-center h-96">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-lg text-gray-600 dark:text-gray-300">Loading levels...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading levels...</p>
           </div>
         </div>
         <UnifiedFooter />
-      </div>
-    )
+      </MobileAppWrapper>
+    );
   }
 
   return (
-    <TokenValidationWrapper>
-      <StudentRoute>
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-          <UnifiedNavbar />
-          
-          <div className="pt-20 pb-8 px-4">
-            <div className="max-w-6xl mx-auto">
-              {/* Header */}
-              <div className="mb-8">
-                <button
-                  onClick={() => router.push('/home')}
-                  className="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 mb-4"
-                >
-                  <FaArrowLeft className="mr-2" />
-                  Back to Home
-                </button>
-                <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                  Quiz Levels
-                </h1>
-                <p className="text-xl text-gray-600 dark:text-gray-300">
-                  Progress through different difficulty levels and unlock new challenges
-                </p>
+    <MobileAppWrapper>
+      <UnifiedNavbar />
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header */}
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Quiz Levels
+            </h1>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Progress through different levels by completing quizzes and improving your knowledge
+            </p>
+          </div>
+
+          {/* Current Progress */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Current Level</h2>
+                <p className="text-gray-600 dark:text-gray-300">Keep going to unlock more levels!</p>
               </div>
-
-              {/* User Progress */}
-              {userLevelData && (
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Your Progress</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                        {userLevelData.currentLevel || 0}
-                      </div>
-                      <div className="text-gray-600 dark:text-gray-300">Current Level</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-green-600 dark:text-green-400">
-                        {userLevelData.totalQuizzesPlayed || 0}
-                      </div>
-                      <div className="text-gray-600 dark:text-gray-300">Quizzes Played</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
-                        {userLevelData.accuracy || 0}%
-                      </div>
-                      <div className="text-gray-600 dark:text-gray-300">Accuracy</div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Levels Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {levels.map((level) => {
-                  const isUnlocked = isLevelUnlocked(level._id)
-                  const isCurrentLevel = userLevelData && level._id === userLevelData.currentLevel
-                  
-                  return (
-                    <div
-                      key={level._id}
-                      className={`relative rounded-xl p-6 shadow-lg transition-all duration-300 transform hover:scale-105 ${
-                        isUnlocked
-                          ? `bg-gradient-to-r ${getLevelColor(level._id)} text-white cursor-pointer`
-                          : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-                      } ${isCurrentLevel ? 'ring-4 ring-yellow-400 ring-opacity-50' : ''}`}
-                      onClick={() => {
-                        if (isUnlocked) {
-                          router.push(`/level/${level._id}`)
-                        }
-                      }}
-                    >
-                      {/* Current Level Badge */}
-                      {isCurrentLevel && (
-                        <div className="absolute -top-2 -right-2 bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-xs font-bold">
-                          Current
-                        </div>
-                      )}
-
-                      {/* Level Icon */}
-                      <div className="flex items-center mb-4">
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center mr-4 ${
-                          isUnlocked ? 'bg-white bg-opacity-20' : 'bg-gray-300 dark:bg-gray-600'
-                        }`}>
-                          {getLevelIcon(level.levelName)}
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-bold">
-                            Level {level._id}
-                          </h3>
-                          <p className="text-sm opacity-90">
-                            {level.levelName}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Level Description */}
-                      <p className="text-sm opacity-90 mb-4">
-                        {level.description}
-                      </p>
-
-                      {/* Level Stats */}
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span>Quizzes Required:</span>
-                          <span className="font-bold">{level.quizzesRequired || 0}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span>Available:</span>
-                          <span className="font-bold">{level.quizCount || 0}</span>
-                        </div>
-                      </div>
-
-                      {/* Lock Icon for Unlocked Levels */}
-                      {!isUnlocked && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 rounded-xl">
-                          <FaStar className="w-8 h-8 text-gray-400" />
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-
-              {/* Rewards Info */}
-              <div className="mt-12 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl p-8 text-white">
-                <h2 className="text-2xl font-bold mb-4">Monthly Rewards</h2>
-                <p className="mb-4">
-                  Reach Level 10 and play at least 110 quizzes with ≥75% accuracy to be eligible for monthly rewards!
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold">1st</div>
-                    <div className="text-lg">₹4,999</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold">2nd</div>
-                    <div className="text-lg">₹3,333</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold">3rd</div>
-                    <div className="text-lg">₹1,667</div>
-                  </div>
-                </div>
+              <div className="text-right">
+                <div className="text-4xl font-bold text-blue-600 dark:text-blue-400">{currentLevel}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">Level</div>
               </div>
             </div>
           </div>
 
-          <UnifiedFooter />
-        </div>
-      </StudentRoute>
-    </TokenValidationWrapper>
-  )
-}
+          {/* Levels Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {levels.map((level) => {
+              const IconComponent = getLevelIcon(level.name);
+              const isLocked = !level.unlocked;
+              
+              return (
+                <div
+                  key={level.id}
+                  className={`relative bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 transition-all duration-300 ${
+                    isLocked ? 'opacity-60' : 'hover:shadow-xl hover:-translate-y-1'
+                  }`}
+                >
+                  {/* Level Icon */}
+                  <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center bg-gradient-to-r ${getLevelColor(level.name, level.unlocked, level.completed)}`}>
+                    {isLocked ? (
+                      <FaLock className="text-white text-2xl" />
+                    ) : (
+                      <IconComponent className="text-white text-2xl" />
+                    )}
+                  </div>
 
-export default LevelsPage
+                  {/* Level Info */}
+                  <div className="text-center">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                      {level.name}
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-300 mb-4">
+                      {level.description}
+                    </p>
+                    
+                    {/* Progress Info */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500 dark:text-gray-400">Required Quizzes:</span>
+                        <span className="font-semibold text-gray-900 dark:text-white">{level.requiredQuizzes}</span>
+                      </div>
+                      
+                      {/* Status Badge */}
+                      <div className="mt-4">
+                        {level.completed ? (
+                          <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400">
+                            <FaCheckCircle className="mr-1" />
+                            Completed
+                          </div>
+                        ) : level.unlocked ? (
+                          <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
+                            Available
+                          </div>
+                        ) : (
+                          <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400">
+                            <FaLock className="mr-1" />
+                            Locked
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Locked Overlay */}
+                  {isLocked && (
+                    <div className="absolute inset-0 bg-gray-900/20 rounded-xl flex items-center justify-center">
+                      <FaLock className="text-white text-3xl" />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Level Benefits */}
+          <div className="mt-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-8 text-white">
+            <h2 className="text-3xl font-bold mb-6 text-center">Level Benefits</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="text-center">
+                <FaTrophy className="text-4xl mb-4 mx-auto text-yellow-300" />
+                <h3 className="text-xl font-semibold mb-2">Unlock Rewards</h3>
+                <p className="text-blue-100">Higher levels unlock better rewards and prizes</p>
+              </div>
+              <div className="text-center">
+                <FaBrain className="text-4xl mb-4 mx-auto text-green-300" />
+                <h3 className="text-xl font-semibold mb-2">Advanced Quizzes</h3>
+                <p className="text-blue-100">Access more challenging and specialized quizzes</p>
+              </div>
+              <div className="text-center">
+                <FaAward className="text-4xl mb-4 mx-auto text-purple-300" />
+                <h3 className="text-xl font-semibold mb-2">Recognition</h3>
+                <p className="text-blue-100">Get recognized for your knowledge and achievements</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <UnifiedFooter />
+    </MobileAppWrapper>
+  );
+};
+
+export default LevelsPage;

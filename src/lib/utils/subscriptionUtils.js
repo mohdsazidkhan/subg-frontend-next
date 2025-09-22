@@ -9,6 +9,9 @@ import { useState, useEffect } from 'react';
  */
 export const hasActiveSubscription = () => {
   try {
+    // Check if we're in browser environment
+    if (typeof window === 'undefined') return false;
+    
     const userInfo = localStorage.getItem('userInfo');
     if (!userInfo) return false;
     
@@ -94,6 +97,9 @@ export const isSubscriptionExpired = () => {
  */
 export const getDaysRemaining = () => {
   try {
+    // Check if we're in browser environment
+    if (typeof window === 'undefined') return 0;
+    
     const userInfo = localStorage.getItem('userInfo');
     if (!userInfo) return 0;
     
@@ -226,6 +232,16 @@ const getSubscriptionText = (subscriptionStatus) => {
  */
 export const getSubscriptionStatusTextWithTheme = (subscriptionStatus = null) => {
   try {
+    // Check if we're in browser environment
+    if (typeof window === 'undefined') {
+      return {
+        text: getSubscriptionText(subscriptionStatus),
+        textColor: 'text-yellow-600',
+        bgColor: 'bg-yellow-50',
+        borderColor: 'border-yellow-200',
+      };
+    }
+    
     const currentTheme = getCurrentTheme();
     const userInfo = localStorage.getItem('userInfo');
     
@@ -309,6 +325,9 @@ export const getSubscriptionStatusTextWithTheme = (subscriptionStatus = null) =>
  */
 export const getSubscriptionStatusText = () => {
   try {
+    // Check if we're in browser environment
+    if (typeof window === 'undefined') return 'No Subscription';
+    
     const userInfo = localStorage.getItem('userInfo');
     if (!userInfo) return 'No Subscription';
     
@@ -338,6 +357,9 @@ export const getSubscriptionStatusText = () => {
  */
 export const getSubscriptionStatusColor = () => {
   try {
+    // Check if we're in browser environment
+    if (typeof window === 'undefined') return 'gray';
+    
     const userInfo = localStorage.getItem('userInfo');
     if (!userInfo) return 'gray';
     
@@ -467,6 +489,9 @@ export const isSubscriptionExpiringSoon = () => {
  */
 export const getCurrentPlanName = () => {
   try {
+    // Check if we're in browser environment
+    if (typeof window === 'undefined') return 'No Plan';
+    
     const userInfo = localStorage.getItem('userInfo');
     if (!userInfo) return 'No Plan';
     
@@ -512,6 +537,9 @@ export const canAccessWallet = () => {
  */
 export const getSubscriptionExpiryDate = () => {
   try {
+    // Check if we're in browser environment
+    if (typeof window === 'undefined') return null;
+    
     const userInfo = localStorage.getItem('userInfo');
     if (!userInfo) return null;
     

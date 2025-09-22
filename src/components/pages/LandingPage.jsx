@@ -46,7 +46,7 @@ import UnifiedNavbar from "../UnifiedNavbar";
 import UnifiedFooter from "../UnifiedFooter";
 import MonthlyWinnersDisplay from "../MonthlyWinnersDisplay";
 import MobileAppWrapper from "../MobileAppWrapper";
-import API from "../../utils/api";
+import API from '../../lib/api'
 
 const LandingPage = () => {
   const [levels, setLevels] = useState([]);

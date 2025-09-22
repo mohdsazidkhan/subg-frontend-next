@@ -3,11 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import API from '../../utils/api';
-import { isAdmin, hasAdminPrivileges } from '../../utils/adminUtils';
+import API from '../../lib/api';
+import { isAdmin, hasAdminPrivileges } from '../../lib/utils/adminUtils';
 import ResponsiveTable from '../../components/ResponsiveTable';
 import Pagination from '../../components/Pagination';
 import { FaUsers, FaEye, FaEdit, FaTrash, FaBan, FaCheck, FaSearch, FaFilter } from 'react-icons/fa';
+import UnifiedNavbar from '../../components/UnifiedNavbar';
+import UnifiedFooter from '../../components/UnifiedFooter';
 
 const AdminUsersPage = () => {
   const router = useRouter();
@@ -283,8 +285,10 @@ const AdminUsersPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
-      <div className="max-w-7xl mx-auto px-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <UnifiedNavbar />
+      <div className="py-8">
+        <div className="max-w-7xl mx-auto px-4">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
@@ -322,7 +326,9 @@ const AdminUsersPage = () => {
             </div>
           )}
         </div>
+        </div>
       </div>
+      <UnifiedFooter />
     </div>
   );
 };

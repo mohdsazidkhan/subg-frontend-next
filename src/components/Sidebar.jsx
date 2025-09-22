@@ -1,20 +1,23 @@
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
+import { useState, useEffect } from 'react';
+import { useClientSide } from '../hooks/useClientSide';
 import {
   MdDashboard, MdCategory, MdQuiz, MdQuestionAnswer, MdPeople,
   MdAnalytics, MdBarChart, MdTrendingUp, MdLogout, MdAccountBalance, MdCardGiftcard
 } from 'react-icons/md';
-import { isAdmin, hasAdminPrivileges, logAdminAction } from '../utils/adminUtils';
-import { secureLogout } from '../utils/authUtils';
+import { isAdmin, hasAdminPrivileges, logAdminAction } from '../lib/utils/adminUtils';
+import { secureLogout } from '../lib/utils/authUtils';
 import { toggleSidebar } from '../store/sidebarSlice';
 
 const Sidebar = () => {
   const dispatch = useDispatch();
   const isOpen = useSelector((state) => state.sidebar.isOpen);
   const router = useRouter();
+  const isClient = useClientSide();
 
-  if (!isAdmin() || !hasAdminPrivileges()) return null;
+  if (!isClient || !isAdmin() || !hasAdminPrivileges()) return null;
 
   const handleNavClick = (page) => {
     dispatch(toggleSidebar())

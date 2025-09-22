@@ -2,15 +2,39 @@
 
 import React, { useState, useEffect } from 'react'
 import { FaUsers, FaBrain, FaTrophy, FaDollarSign, FaChartLine, FaUserGraduate, FaQuestionCircle, FaCrown } from 'react-icons/fa'
-import UnifiedNavbar from '../../UnifiedNavbar'
-import UnifiedFooter from '../../UnifiedFooter'
+import UnifiedNavbar from '../../UnifiedNavbar';
+import UnifiedFooter from '../../UnifiedFooter';
 import TokenValidationWrapper from '../../TokenValidationWrapper'
 import AdminRoute from '../../AdminRoute'
-import API from '@/lib/api'
+import API from '../../../lib/api'
 
 const DashboardPage = () => {
-  const [stats, setStats] = useState(null)
+  const [stats, setStats] = useState({
+    categories: 0,
+    subcategories: 0,
+    quizzes: 0,
+    questions: 0,
+    students: 0,
+    bankDetails: 0,
+    totalQuizAttempts: 0,
+    subscriptions: 0,
+    activeSubscriptions: 0,
+    freeSubscriptions: 0,
+    paidSubscriptions: 0,
+    paymentOrders: 0,
+    completedPaymentOrders: 0,
+    totalRevenue: 0,
+    // Article stats
+    totalArticles: 0,
+    publishedArticles: 0,
+    draftArticles: 0,
+    featuredArticles: 0,
+    pinnedArticles: 0,
+    totalArticleViews: 0,
+    totalArticleLikes: 0
+  })
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     fetchDashboardData()
@@ -19,10 +43,46 @@ const DashboardPage = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true)
-      const data = await API.getAdminStats()
-      setStats(data)
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error)
+      setError(null)
+      const [mainStats, articleStats] = await Promise.all([
+        API.getAdminStats(),
+        API.getArticleStats()
+      ])
+      
+      setStats({
+        ...mainStats,
+        ...articleStats.stats,
+        // Map backend field names to frontend expected names
+        totalArticleViews: articleStats.stats.totalViews || 0,
+        totalArticleLikes: articleStats.stats.totalLikes || 0
+      })
+    } catch (err) {
+      console.error('Error fetching stats:', err)
+      setError('Failed to load dashboard statistics')
+      // Set default values on error
+      setStats({
+        categories: 0,
+        subcategories: 0,
+        quizzes: 0,
+        questions: 0,
+        students: 0,
+        bankDetails: 0,
+        totalQuizAttempts: 0,
+        subscriptions: 0,
+        activeSubscriptions: 0,
+        freeSubscriptions: 0,
+        paidSubscriptions: 0,
+        paymentOrders: 0,
+        completedPaymentOrders: 0,
+        totalRevenue: 0,
+        totalArticles: 0,
+        publishedArticles: 0,
+        draftArticles: 0,
+        featuredArticles: 0,
+        pinnedArticles: 0,
+        totalArticleViews: 0,
+        totalArticleLikes: 0
+      })
     } finally {
       setLoading(false)
     }
@@ -36,6 +96,28 @@ const DashboardPage = () => {
           <div className="text-center">
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
             <p className="text-lg text-gray-600 dark:text-gray-300">Loading dashboard...</p>
+          </div>
+        </div>
+        <UnifiedFooter />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <UnifiedNavbar />
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center max-w-md mx-auto p-6">
+            <div className="text-red-500 text-6xl mb-4">⚠️</div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Dashboard Error</h2>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">{error}</p>
+            <button
+              onClick={() => fetchDashboardData()}
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Try Again
+            </button>
           </div>
         </div>
         <UnifiedFooter />

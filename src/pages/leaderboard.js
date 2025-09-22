@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useGlobalError } from '../contexts/GlobalErrorContext';
 import { useTokenValidation } from '../hooks/useTokenValidation';
-import API from '../utils/api';
+import API from '../lib/api'
 import ResponsiveTable from '../components/ResponsiveTable';
 import { FaTrophy, FaCrown, FaMedal } from 'react-icons/fa';
 

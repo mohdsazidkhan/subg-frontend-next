@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import API from '../../utils/api';
+import API from '../../lib/api'
 // import config from '../../config/appConfig';
 import MobileAppWrapper from '../MobileAppWrapper';
 import { 
@@ -39,6 +39,9 @@ import { useRouter } from 'next/navigation';
 import MonthlyRewardsInfo from '../MonthlyRewardsInfo';
 import PayuPayment from '../PayuPayment';
 import PaymentTransactions from '../PaymentTransactions';
+
+import UnifiedNavbar from '../UnifiedNavbar';
+import UnifiedFooter from '../UnifiedFooter';
 
 const SubscriptionPage = () => {
   const [subscription, setSubscription] = useState(null);
@@ -306,6 +309,8 @@ const SubscriptionPage = () => {
   return (
   <MobileAppWrapper title="Subscription">
     <div className="min-h-screen bg-subg-light dark:bg-subg-dark relative overflow-hidden">
+        {/* Desktop Header */}
+        <UnifiedNavbar />
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
   <div className="absolute -top-40 -right-40 w-40 sm:w-80 h-40 sm:h-80 bg-gradient-to-br from-yellow-400/20 to-red-400/20 rounded-full blur-3xl animate-pulse"></div>
@@ -694,6 +699,8 @@ const SubscriptionPage = () => {
         </div>
       </div>
     </div>
+          {/* Desktop Footer */}
+      <UnifiedFooter />
     </MobileAppWrapper>
   );
 };

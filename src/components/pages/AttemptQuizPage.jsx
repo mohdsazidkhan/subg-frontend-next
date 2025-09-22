@@ -7,6 +7,9 @@ import { toast } from 'react-toastify'
 import { FaClock, FaQuestionCircle, FaCheck, FaTimes, FaArrowLeft, FaFlag } from 'react-icons/fa'
 import MobileAppWrapper from '@/components/MobileAppWrapper'
 
+import UnifiedNavbar from '../UnifiedNavbar';
+import UnifiedFooter from '../UnifiedFooter';
+
 const AttemptQuizPage = ({ quizId }) => {
   const router = useRouter()
   const [quiz, setQuiz] = useState(null)
@@ -95,9 +98,13 @@ const AttemptQuizPage = ({ quizId }) => {
     return (
       <MobileAppWrapper title="Loading Quiz">
         <div className="flex items-center justify-center h-64">
+        {/* Desktop Header */}
+        <UnifiedNavbar />
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
         </div>
-      </MobileAppWrapper>
+            {/* Desktop Footer */}
+      <UnifiedFooter />
+    </MobileAppWrapper>
     )
   }
 

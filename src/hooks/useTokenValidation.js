@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { isAuthenticated, getToken, logout } from '../utils/authUtils';
-import API from '../utils/api';
+import { isAuthenticated, getToken, logout } from '../lib/utils/authUtils';
+import API from '../lib/api';
 
 export const useTokenValidation = () => {
   const [isValidating, setIsValidating] = useState(false);

@@ -3,9 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import API from '../../utils/api';
-import { isAdmin, hasAdminPrivileges } from '../../utils/adminUtils';
+import API from '../../lib/api';
+import { isAdmin, hasAdminPrivileges } from '../../lib/utils/adminUtils';
 import { FaUsers, FaQuestionCircle, FaChartLine, FaTrophy, FaDollarSign, FaCalendar, FaClock, FaCheckCircle } from 'react-icons/fa';
+import UnifiedNavbar from '../../components/UnifiedNavbar';
+import UnifiedFooter from '../../components/UnifiedFooter';
 
 const AdminDashboard = () => {
   const router = useRouter();
@@ -25,7 +27,7 @@ const AdminDashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const response = await API.request('/api/admin/dashboard');
+      const response = await API.getAdminStats();
       setDashboardData(response);
     } catch (error) {
       toast.error('Failed to fetch dashboard data');
@@ -94,8 +96,10 @@ const AdminDashboard = () => {
   const recentActivities = dashboardData.recentActivities || [];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
-      <div className="max-w-7xl mx-auto px-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <UnifiedNavbar />
+      <div className="py-8">
+        <div className="max-w-7xl mx-auto px-4">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             Admin Dashboard
@@ -220,7 +224,9 @@ const AdminDashboard = () => {
             </div>
           </div>
         </div>
+        </div>
       </div>
+      <UnifiedFooter />
     </div>
   );
 };

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 import {
   FaTrophy,
   FaCrown,
@@ -29,7 +29,7 @@ import {
   FaArrowRight,
 } from "react-icons/fa";
 import { FaMagic } from "react-icons/fa";
-import API from "../../utils/api";
+import API from '../../lib/api'
 import { hasActiveSubscription } from "../../utils/subscriptionUtils";
 import QuizStartModal from "../QuizStartModal";
 import TopPerformers from "../TopPerformers";
@@ -38,6 +38,8 @@ import { BsSearch } from "react-icons/bs";
 import MonthlyWinnersDisplay from "../MonthlyWinnersDisplay";
 import MobileAppWrapper from "../MobileAppWrapper";
 import ReferralBanner from "../ReferralBanner";
+import UnifiedNavbar from "../UnifiedNavbar";
+import UnifiedFooter from "../UnifiedFooter";
 // Icon mapping for categories
 const categoryIcons = {
   Science: FaFlask,
@@ -213,8 +215,9 @@ const getLevelColors = (levelName) => {
 };
 
 const HomePage = () => {
-  // Check if user is logged in
+  // Check if user is logged in - use client-side state to avoid hydration mismatch
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const router = useRouter();
   const [homeData, setHomeData] = useState(null);
   const [userLevelData, setUserLevelData] = useState(null);
@@ -228,11 +231,17 @@ const HomePage = () => {
   const [showSystemUpdateModal, setShowSystemUpdateModal] = useState(false);
   const [profileCompletion, setProfileCompletion] = useState(null);
   const [user, setUser] = useState(null);
+  const [hasActiveSub, setHasActiveSub] = useState(false);
   console.log(userLevelData, "userLevelData");
   
   useEffect(() => {
-    // Check login status after component mounts
-    setIsLoggedIn(!!localStorage.getItem("token"));
+    // Set client-side flag and check login status
+    setIsClient(true);
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
+    
+    // Check subscription status
+    setHasActiveSub(hasActiveSubscription());
     
     fetchHomePageData();
     fetchCategories();
@@ -260,26 +269,16 @@ const HomePage = () => {
   const fetchHomePageData = async () => {
     try {
       setLoading(true);
-      console.log('🔍 Fetching home page data...');
       const res = await API.getHomePageData();
-      console.log('📊 Home page data response:', res);
-      
       if (res?.success) {
         setHomeData(res.data);
         setUserLevelData(res.userLevel);
-        console.log('✅ Home page data loaded successfully');
       } else {
-        console.log("❌ HomePage Data Error:", res);
+        console.log("HomePage Data:", res);
         setError(res.message || "Failed to load home page data");
       }
     } catch (err) {
-      console.error("❌ HomePage Data Error:", err);
-      console.error("❌ Error details:", {
-        message: err.message,
-        response: err.response,
-        stack: err.stack
-      });
-      
+      console.log("HomePage Data:", err);
       // Try to show a more specific error message if available
       let msg = err?.response?.data?.message || err?.message || err?.toString();
       if (msg && msg !== "[object Object]") {
@@ -471,9 +470,8 @@ const HomePage = () => {
 
   const fetchProfileCompletion = async () => {
     try {
-      console.log('🔍 Fetching profile completion data...');
       const res = await API.getProfile();
-      console.log('📊 Profile API Response:', res);
+      console.log('🔍 Profile API Response:', res);
       
       if (res?.success && res.user?.profileCompletion) {
         console.log('✅ Profile completion data found:', res.user.profileCompletion);
@@ -488,13 +486,7 @@ const HomePage = () => {
         });
       }
     } catch (err) {
-      console.error('❌ Failed to fetch profile completion:', err);
-      console.error('❌ Profile error details:', {
-        message: err.message,
-        response: err.response,
-        stack: err.stack
-      });
-      
+      console.log('❌ Failed to fetch profile completion:', err);
       // Set default values if API fails
       setProfileCompletion({
         percentage: 0,
@@ -541,7 +533,7 @@ const HomePage = () => {
     }
   };
 
-  if (loading) {
+  if (!isClient || loading) {
     return (
       <div className="min-h-screen bg-subg-light dark:bg-subg-dark flex items-center justify-center">
         <div className="text-center">
@@ -575,8 +567,9 @@ const HomePage = () => {
   };
   return (
     <MobileAppWrapper title="Home">
-      
       <div className="relative min-h-screen bg-subg-light dark:bg-subg-dark overflow-x-hidden">
+        {/* Desktop Header */}
+        <UnifiedNavbar />
 
       {/* Hero Section */}
       <div className="relative overflow-hidden z-10">
@@ -629,7 +622,7 @@ const HomePage = () => {
             </h2>
 
             {/* Search Box */}
-            {isLoggedIn && (
+            {isClient && isLoggedIn && (
               <div className="hidden md:flex justify-center w-full mb-6 sm:mb-8 animate-fade-in delay-150 px-4 sm:px-0">
                 <form
                   onSubmit={handleSearch}
@@ -656,7 +649,7 @@ const HomePage = () => {
       </div>
       
       {/* Profile Completion Reward Section - Only show for logged in users with incomplete profile and free subscription */}
-      {isLoggedIn && profileCompletion && profileCompletion.percentage < 100 && user?.subscriptionStatus === 'free' && (
+      {isClient && isLoggedIn && profileCompletion && profileCompletion.percentage < 100 && user?.subscriptionStatus === 'free' && (
         <div className="container mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8 md:py-10 lg:py-12 z-10">
           <div className="rounded-2xl sm:rounded-3xl shadow-xl sm:shadow-2xl p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12 border-2 border-green-300/30 bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-green-900/20 dark:via-emerald-900/20 dark:to-teal-900/20">
             <div className="text-center mb-6 sm:mb-8 md:mb-10">
@@ -1137,7 +1130,14 @@ const HomePage = () => {
           </p>
 
           {/* Quiz Section: Show login required if not logged in, else show quizzes or subscription message */}
-          {!isLoggedIn ? (
+          {!isClient ? (
+            <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-3xl shadow-2xl p-0 md:p-8 border border-white/20 flex flex-col items-center justify-center animate-fade-in">
+              <div className="text-center mb-6">
+                <div className="animate-spin rounded-full h-16 w-16 border-2 border-gray-500 mx-auto mb-4"></div>
+                <p className="text-gray-600 dark:text-gray-300 text-lg">Loading...</p>
+              </div>
+            </div>
+          ) : !isLoggedIn ? (
             <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-3xl shadow-2xl p-0 md:p-8 border border-white/20 flex flex-col items-center justify-center animate-fade-in">
               <div className="text-center mb-6">
                 <div className="text-yellow-600 text-3xl mb-2">🔒</div>
@@ -1152,7 +1152,7 @@ const HomePage = () => {
                 </Link>
               </div>
             </div>
-          ) : !hasActiveSubscription() ||
+          ) : !hasActiveSub ||
           (error && error.toLowerCase().includes("subscription")) ? (
             <div className="animate-fade-in">
               {/* Subscription Warning */}
@@ -1177,7 +1177,7 @@ const HomePage = () => {
               </div>
 
               {/* Referral Banner - Only show for logged-in users */}
-              {isLoggedIn && user && (
+              {isClient && isLoggedIn && user && (
                 <ReferralBanner user={user} />
               )}
             </div>
@@ -1509,7 +1509,13 @@ const HomePage = () => {
 
           {/* Call to Action */}
           <div className="text-center">
-            {!isLoggedIn ? (
+            {!isClient ? (
+              <div className="space-y-3 sm:space-y-4">
+                <p className="text-gray-700 dark:text-yellow-200 text-sm sm:text-base md:text-lg font-medium">
+                  Loading...
+                </p>
+              </div>
+            ) : !isLoggedIn ? (
               <div className="space-y-3 sm:space-y-4">
                 <p className="text-gray-700 dark:text-yellow-200 text-sm sm:text-base md:text-lg font-medium">
                   Ready to start earning rewards?
@@ -1554,7 +1560,7 @@ const HomePage = () => {
           </div>
 
           {/* Referral Code Preview */}
-          {!isLoggedIn && (
+          {isClient && !isLoggedIn && (
             <div className="mt-6 bg-gray-100 dark:bg-white/10 rounded-2xl p-6 border border-gray-300 dark:border-white/20">
               <h4 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">
                 What Your Referral Code Will Look Like:
@@ -1590,6 +1596,8 @@ const HomePage = () => {
         }}
       />
 
+        {/* Desktop Footer */}
+        <UnifiedFooter />
         </div>
       </div>
     </MobileAppWrapper>

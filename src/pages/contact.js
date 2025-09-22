@@ -1,15 +1,7 @@
-import dynamic from 'next/dynamic';
-import { Suspense } from 'react';
+import ContactUs from '../components/pages/ContactUs';
 
-const ContactUs = dynamic(() => import('../components/pages/ContactUs'), {
-  ssr: false,
-  loading: () => <div>Loading...</div>
-});
+const ContactPage = () => {
+  return <ContactUs />;
+};
 
-export default function Contact() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <ContactUs />
-    </Suspense>
-  );
-}
+export default ContactPage;

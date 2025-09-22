@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import API from '@/lib/api'
+import API from '../../../lib/api'
 import { toast } from 'react-toastify'
 import { FaSearch, FaArrowLeft, FaTrophy, FaCrown, FaMedal } from 'react-icons/fa'
 import AdminMobileAppWrapper from '@/components/AdminMobileAppWrapper'

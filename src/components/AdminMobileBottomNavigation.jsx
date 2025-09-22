@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useSSR } from '../hooks/useSSR';
+import { useRouter } from 'next/router';
+import { useClientSide, useAuthStatus } from '../hooks/useClientSide';
 import {
   FaUsers,
   FaBook,
@@ -13,16 +14,12 @@ import { getCurrentUser } from '../lib/utils/authUtils';
 import { isAdmin } from '../lib/utils/adminUtils';
 
 const AdminMobileBottomNavigation = () => {
-  const { isMounted, isRouterReady, router } = useSSR();
-  const user = getCurrentUser();
-  
-  // Don't render anything during SSR
-  if (!isMounted) {
-    return null;
-  }
+  const router = useRouter();
+  const isClient = useClientSide();
+  const { user } = useAuthStatus();
 
   // Don't show on non-admin pages
-  if (!isRouterReady || !router || !router.pathname.startsWith('/admin') || !user || !isAdmin()) {
+  if (!isClient || !router.pathname.startsWith('/admin') || !user || !isAdmin()) {
     return null;
   }
 
@@ -72,7 +69,7 @@ const AdminMobileBottomNavigation = () => {
         <div className="flex justify-between items-center">
           {adminNavItems.map((item) => {
             const Icon = item.icon;
-            const isActive = router && router.pathname === item.path;
+            const isActive = router.pathname === item.path;
             
             return (
               <Link

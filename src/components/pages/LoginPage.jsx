@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useGoogleLogin } from '@react-oauth/google'
-import API from '../../utils/api'
+import API from '../../lib/api'
 import { toast } from 'react-toastify'
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaTrophy, FaBrain, FaRocket, FaSignInAlt } from 'react-icons/fa'
 import MobileAppWrapper from '../MobileAppWrapper'
@@ -18,10 +18,6 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [referralCode, setReferralCode] = useState('')
   const router = useRouter()
-
-  // Check if Google OAuth is available
-  const isGoogleOAuthAvailable = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && 
-    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID !== 'your_google_client_id_here'
 
   // Google OAuth Login
   const googleLogin = useGoogleLogin({
@@ -55,17 +51,14 @@ const LoginPage = () => {
             console.log('🚀 Redirecting to admin dashboard...')
             router.push('/admin/dashboard')
           } else {
-            console.log('🚀 Redirecting to home page...')
-            router.push('/home')
+            console.log('🚀 Redirecting to student profile...')
+            router.push('/')
           }
-          
-          toast.success('Welcome back! 🎉')
-        } else {
-          toast.error(authResponse.message || 'Google login failed')
+          toast.success(authResponse.message || 'Google login successful!')
         }
       } catch (error) {
         console.error('❌ Google login error:', error)
-        toast.error('Google login failed. Please try again.')
+        toast.error(error.response?.data?.message || 'Google login failed. Please try again.')
       }
     },
     onError: (error) => {
@@ -74,30 +67,40 @@ const LoginPage = () => {
     }
   })
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault()
     setIsLoading(true)
-
+    
     try {
-      const response = await API.login({
-        identifier,
-        password,
-        ...(referralCode && { referralCode: referralCode.toUpperCase() })
-      })
+      console.log('🔍 Login process started...')
+      
+      console.log('📞 Making API call to login...')
+      const response = await API.login({ identifier, password })
+      console.log('📊 Login response:', response)
+      
+      if(response?.success){
+        console.log('✅ Login successful, processing user data...')
+        console.log('👤 User role:', response.user.role)
+        console.log('👤 User data:', response.user)
 
-      if (response.success) {
         localStorage.setItem('userInfo', JSON.stringify(response.user))
         localStorage.setItem('token', response.token)
         
+        console.log('💾 Data stored in localStorage')
+        console.log('🔍 Verifying localStorage...')
+        const storedUser = localStorage.getItem('userInfo')
+        const storedToken = localStorage.getItem('token')
+        console.log('Stored user:', storedUser)
+        console.log('Stored token:', storedToken ? 'Present' : 'Missing')
+        
         if (response.user.role === 'admin') {
+          console.log('🚀 Redirecting to admin dashboard...')
           router.push('/admin/dashboard')
         } else {
-          router.push('/home')
+          console.log('🚀 Redirecting to student profile...')
+          router.push('/')
         }
-        
-        toast.success('Welcome back! 🎉')
-      } else {
-        toast.error(response.message || 'Login failed')
+        toast.success(response.message || "Login Success!")
       }
     } catch (err) {
       console.error('❌ Login error:', err)
@@ -108,13 +111,11 @@ const LoginPage = () => {
   }
 
   return (
-    <>
+    <MobileAppWrapper title="Login">
       {/* Desktop Header */}
       <UnifiedNavbar />
-      
-      <MobileAppWrapper title="Login">
-        <div className="bg-subg-light dark:bg-subg-dark flex items-center justify-center p-2 md:p-4 min-h-screen">
-      <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+      <div className="bg-subg-light dark:bg-subg-dark flex items-center justify-center p-2 md:p-4">
+        <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
         
         {/* Left Side - Quiz Platform Info */}
         <div className="hidden lg:block space-y-8">
@@ -191,123 +192,113 @@ const LoginPage = () => {
             </div>
 
             {/* Google Login Button */}
-            {isGoogleOAuthAvailable && (
-              <button
-                onClick={() => googleLogin()}
-                className="w-full bg-white border-2 border-gray-300 rounded-xl px-3 lg:px-6 py-2 lg:py-3 text-gray-700 font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 flex items-center justify-center space-x-3 mb-3 lg:mb-6 shadow-sm hover:shadow-md"
-              >
-                <img src="/google.svg" alt="Google" className="w-6 h-6" />
-                <span>Sign In with Google</span>
-              </button>
-            )}
+            <button
+              onClick={() => googleLogin()}
+              className="w-full bg-white border-2 border-gray-300 rounded-xl px-3 lg:px-6 py-2 lg:py-3 text-gray-700 font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 flex items-center justify-center space-x-3 mb-3 lg:mb-6 shadow-sm hover:shadow-md"
+            >
+              <img src="/google.svg" alt="Google" className="w-6 h-6" />
+              <span>Sign In with Google</span>
+            </button>
 
             {/* Divider */}
-            {isGoogleOAuthAvailable && (
-              <div className="relative mb-2 lg:mb-6">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white dark:bg-gray-800 text-gray-500">Or continue with email</span>
-                </div>
+            <div className="relative mb-2 lg:mb-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
               </div>
-            )}
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">or continue with email</span>
+              </div>
+            </div>
 
-            {/* Login Form */}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Email/Username Field */}
+            {/* Existing Login Form */}
+            <form onSubmit={handleLogin} className="space-y-2 lg:space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Email or Username
+                  Email or Phone
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FaEnvelope className="h-5 w-5 text-gray-400" />
-                  </div>
+                  <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   <input
                     type="text"
-                    required
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
-                    className="block w-full pl-10 pr-3 py-2 lg:py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-300"
-                    placeholder="Enter your email or username"
+                    className="w-full pl-10 pr-4 py-2 lg:py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-300"
+                    placeholder="Enter your email or phone"
+                    required
                   />
                 </div>
               </div>
 
-              {/* Password Field */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Password
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FaLock className="h-5 w-5 text-gray-400" />
-                  </div>
+                  <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   <input
-                    type={showPassword ? 'text' : 'password'}
-                    required
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="block w-full pl-10 pr-12 py-2 lg:py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-300"
+                    className="w-full pl-10 pr-12 py-2 lg:py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-300"
                     placeholder="Enter your password"
+                    required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                   >
-                    {showPassword ? (
-                      <FaEyeSlash className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" />
-                    ) : (
-                      <FaEye className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" />
-                    )}
+                    {showPassword ? <FaEyeSlash /> : <FaEye />}
                   </button>
                 </div>
               </div>
 
-              {/* Submit Button */}
+              <div className="flex items-center justify-between">
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-2 lg:py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl"
+                className="w-full bg-gradient-to-r from-red-600 to-yellow-600 text-white py-2 lg:py-3 px-4 lg:px-6 rounded-xl font-semibold hover:from-red-700 hover:to-yellow-700 focus:ring-4 focus:ring-red-300 dark:focus:ring-red-800 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-2"
               >
                 {isLoading ? (
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    <span>Signing in...</span>
+                  </>
                 ) : (
                   <>
-                    <FaSignInAlt className="h-5 w-5" />
+                    <FaSignInAlt />
                     <span>Sign In</span>
                   </>
                 )}
               </button>
             </form>
 
-            {/* Links */}
-            <div className="mt-6 text-center space-y-4">
-              <div>
-                <Link href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
-                  Forgot your password?
+            <div className="mt-6 text-center">
+              <p className="text-gray-600 dark:text-gray-400">
+                Don't have an account?{' '}
+                <Link
+                  href="/register"
+                  className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold transition-colors"
+                >
+                  REGISTER
                 </Link>
-              </div>
-              <div>
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  Don't have an account?{' '}
-                </span>
-                <Link href="/register" className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-semibold transition-colors">
-                  Sign up here
-                </Link>
-              </div>
+              </p>
             </div>
           </div>
         </div>
+        </div>
       </div>
-    </div>
+      {/* Desktop Footer */}
+      <UnifiedFooter />
     </MobileAppWrapper>
-    
-    {/* Desktop Footer */}
-    <UnifiedFooter />
-    </>
   )
 }
 

@@ -6,13 +6,7 @@ import { useTokenValidation } from '../hooks/useTokenValidation';
 import API from '../lib/api';
 
 const TopPerformers = () => {
-  const [viewMode, setViewMode] = useState(() => {
-    // Set default view based on screen size
-    if (typeof window !== 'undefined') {
-      return window.innerWidth < 768 ? "list" : "table";
-    }
-    return "table";
-  });
+  const [viewMode, setViewMode] = useState("table"); // Default fallback
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -24,11 +18,35 @@ const TopPerformers = () => {
   // Token validation
   const { checkAuthStatus } = useTokenValidation();
 
-  // Check if user is logged in and get current user info
-  const isLoggedIn = typeof window !== 'undefined' ? !!localStorage.getItem("token") : false;
-  const currentUserId = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem("userInfo") || '{}')?._id : null;
+  // Check if user is logged in and get current user info - use client-side state to avoid hydration mismatch
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState(null);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    // Set client-side flag and check login status
+    setIsClient(true);
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
+    
+    const userInfo = localStorage.getItem("userInfo");
+    if (userInfo) {
+      try {
+        const parsed = JSON.parse(userInfo);
+        setCurrentUserId(parsed._id || null);
+      } catch (e) {
+        setCurrentUserId(null);
+      }
+    }
+    
+    // Set view mode based on screen size
+    setViewMode(window.innerWidth < 768 ? "list" : "table");
+  }, []);
 
   const fetchTopPerformers = useCallback(async (isRefresh = false) => {
+    // Only fetch if we're on the client side
+    if (!isClient) return;
+    
     // Validate token before making API call
     if (!(await checkAuthStatus())) {
       return;
@@ -126,6 +144,8 @@ const TopPerformers = () => {
         setError("Rate limit reached. Please wait or login for higher limits.");
       } else if (err.name === 'TypeError' && err.message.includes('fetch')) {
         setError("Network Error: Unable to connect to server. Please check if the backend is running.");
+      } else if (err.response?.status === 404) {
+        setError("API endpoint not found. The backend server may not be running or the endpoint is not available.");
       } else if (err.message) {
         setError(`Error: ${err.message}`);
       } else {
@@ -147,15 +167,17 @@ const TopPerformers = () => {
   };
 
   useEffect(() => {
-    fetchTopPerformers();
-    
-    // Auto-refresh every 5 minutes to keep data current
-    const interval = setInterval(() => {
+    if (isClient) {
       fetchTopPerformers();
-    }, 5 * 60 * 1000); // 5 minutes
-    
-    return () => clearInterval(interval);
-  }, [fetchTopPerformers, checkRateLimitError]);
+      
+      // Auto-refresh every 5 minutes to keep data current
+      const interval = setInterval(() => {
+        fetchTopPerformers();
+      }, 5 * 60 * 1000); // 5 minutes
+      
+      return () => clearInterval(interval);
+    }
+  }, [isClient, fetchTopPerformers, checkRateLimitError]);
 
   // Handle screen size changes
   useEffect(() => {

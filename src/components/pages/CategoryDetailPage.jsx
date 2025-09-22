@@ -7,6 +7,9 @@ import { toast } from 'react-toastify'
 import { FaArrowLeft, FaPlay, FaClock, FaUsers, FaTrophy } from 'react-icons/fa'
 import MobileAppWrapper from '@/components/MobileAppWrapper'
 
+import UnifiedNavbar from '../UnifiedNavbar';
+import UnifiedFooter from '../UnifiedFooter';
+
 const CategoryDetailPage = ({ categoryId }) => {
   const router = useRouter()
   const [category, setCategory] = useState(null)
@@ -43,9 +46,13 @@ const CategoryDetailPage = ({ categoryId }) => {
     return (
       <MobileAppWrapper title="Loading Category">
         <div className="flex items-center justify-center h-64">
+        {/* Desktop Header */}
+        <UnifiedNavbar />
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
         </div>
-      </MobileAppWrapper>
+            {/* Desktop Footer */}
+      <UnifiedFooter />
+    </MobileAppWrapper>
     )
   }
 
