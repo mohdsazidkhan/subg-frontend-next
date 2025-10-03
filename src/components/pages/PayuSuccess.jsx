@@ -30,9 +30,10 @@ const PayuSuccess = () => {
   const verifyPayment = async (paymentId) => {
     try {
       setLoading(true)
-      const response = await API.verifyPayment(paymentId)
-      if (response.success) {
-        setPaymentDetails(response.data)
+      const response = await API.verifyPayuSubscription({ paymentId })
+      const ok = response?.success !== false
+      if (ok) {
+        setPaymentDetails(response.data || response)
         toast.success('Payment successful! Your subscription has been activated.')
       } else {
         toast.error('Payment verification failed')

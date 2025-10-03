@@ -40,11 +40,11 @@ const QuizHistoryPage = () => {
         ...filters
       };
 
-      const queryString = new URLSearchParams(params).toString();
-      const response = await API.getStudentQuizHistory({ page, limit: itemsPerPage });
-      setQuizHistory(response.attempts);
-      setTotalPages(response.totalPages);
-      setTotalItems(response.total);
+      const response = await API.getStudentQuizHistory({ page: currentPage, limit: itemsPerPage, search: searchTerm, ...filters });
+      const payload = response?.data || response;
+      setQuizHistory(payload.attempts || payload.items || []);
+      setTotalPages(payload.totalPages || payload.pagination?.totalPages || 1);
+      setTotalItems(payload.total || payload.pagination?.total || (payload.attempts?.length || 0));
     } catch (error) {
       handleError(error, 'Failed to fetch quiz history');
     } finally {

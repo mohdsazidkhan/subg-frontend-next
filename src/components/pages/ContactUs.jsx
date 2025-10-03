@@ -10,6 +10,7 @@ import {
   FaRocket,
 } from "react-icons/fa";
 import MobileAppWrapper from '../MobileAppWrapper';
+import API from '../../lib/api';
 import {
   FaFacebookF,
   FaTwitter,
@@ -48,19 +49,13 @@ const ContactUs = () => {
     e.preventDefault();
     setStatus(null);
     try {
-      const API_BASE_URL =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-      const response = await fetch(`${API_BASE_URL}/api/contacts`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          message: `Subject: ${formData.subject}\n${formData.message}`,
-        }),
-      });
-      const data = await response.json();
-      if (data.success) {
+      const payload = {
+        name: formData.name,
+        email: formData.email,
+        message: `Subject: ${formData.subject}\n${formData.message}`,
+      };
+      const data = await API.submitContactForm(payload);
+      if (data && data.success) {
         setStatus("success");
         setFormData({ name: "", email: "", subject: "", message: "" });
       } else {

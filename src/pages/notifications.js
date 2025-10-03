@@ -20,8 +20,9 @@ const NotificationsPage = () => {
   const fetchNotifications = async () => {
     try {
       setLoading(true);
-      const response = await API.request('/api/student/notifications');
-      setNotifications(response);
+      const res = await API.getStudentNotifications();
+      const payload = res?.data || res;
+      setNotifications(Array.isArray(payload) ? payload : (payload.items || []));
     } catch (error) {
       handleError(error, 'Failed to fetch notifications');
     } finally {
@@ -76,7 +77,7 @@ const NotificationsPage = () => {
 
   const clearAllNotifications = async () => {
     try {
-      await API.delete('/api/student/notifications/clear-all');
+      await API.request('/api/student/notifications/clear-all', { method: 'DELETE' });
       setNotifications([]);
     } catch (error) {
       handleError(error, 'Failed to clear all notifications');

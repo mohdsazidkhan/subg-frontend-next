@@ -71,18 +71,18 @@ const levelBadgeIcons = {
   Default: FaStar,
 };
 
-// Level play count info for display (monthly cumulative wins, monthly pricing)
+// Level play count info for display (cumulative quiz attempts, monthly pricing)
 const levelsInfo = [
-  { level: 1, quizzes: 2, plan: "Free", amount: 0, prize: 0 },
-  { level: 2, quizzes: 6, plan: "Free", amount: 0, prize: 0 },
-  { level: 3, quizzes: 12, plan: "Free", amount: 0, prize: 0 },
-  { level: 4, quizzes: 20, plan: "Basic", amount: 9, prize: 0 },
-  { level: 5, quizzes: 30, plan: "Basic", amount: 9, prize: 0 },
-  { level: 6, quizzes: 42, plan: "Basic", amount: 9, prize: 0 },
-  { level: 7, quizzes: 56, plan: "Premium", amount: 49, prize: 0 },
-  { level: 8, quizzes: 72, plan: "Premium", amount: 49, prize: 0 },
-  { level: 9, quizzes: 90, plan: "Premium", amount: 49, prize: 0 },
-  { level: 10, quizzes: 110, plan: "Pro", amount: 99, prize: 9999 },
+  { level: 1, quizzes: 6, plan: "Free", amount: 0, prize: 0 },
+  { level: 2, quizzes: 18, plan: "Free", amount: 0, prize: 0 },
+  { level: 3, quizzes: 36, plan: "Free", amount: 0, prize: 0 },
+  { level: 4, quizzes: 60, plan: "Basic", amount: 9, prize: 0 },
+  { level: 5, quizzes: 90, plan: "Basic", amount: 9, prize: 0 },
+  { level: 6, quizzes: 126, plan: "Basic", amount: 9, prize: 0 },
+  { level: 7, quizzes: 168, plan: "Premium", amount: 49, prize: 0 },
+  { level: 8, quizzes: 216, plan: "Premium", amount: 49, prize: 0 },
+  { level: 9, quizzes: 270, plan: "Premium", amount: 49, prize: 0 },
+  { level: 10, quizzes: process.env.NEXT_PUBLIC_LEVEL_10_QUIZ_REQUIREMENT || 220, plan: "Pro", amount: 99, prize: process.env.NEXT_PUBLIC_MONTHLY_REWARD_PRIZE_POOL || 10000 },
 ];
 
 // Level color mappings for both light and dark modes
@@ -647,6 +647,169 @@ const HomePage = () => {
           </div>
         </div>
       </div>
+
+      {/* Pro User Wallet Section */}
+      <section className="py-5 md:py-10 lg:py-20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-900 dark:via-green-900/20 dark:to-emerald-900/20 pointer-events-none" />
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-4 md:mb-8 lg:mb-16">
+            <h2 className="text-xl md:text-3xl lg:text-4xl font-bold mb-4">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-500 via-emerald-500 to-teal-600 dark:text-white">
+                Earn Prize by Adding Questions
+              </span>
+            </h2>
+            <p className="text-md md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Pro users can earn money by creating quality questions. <br/>Get ₹10 for every approved question!
+            </p>
+          </div>
+
+          <div className="container mx-auto">
+            <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-6 md:p-8 lg:p-12 border border-green-200 dark:border-green-700">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+                
+                {/* Left Side - Earning Process */}
+                <div className="space-y-6">
+                  <div className="text-center lg:text-left">
+                    <div className="w-20 h-20 mx-auto lg:mx-0 mb-4 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center">
+                      <span className="text-3xl">💰</span>
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white mb-4">
+                      Earn ₹10 Per Question
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-300 mb-6">
+                      Create high-quality questions and earn money for each approved question by our admin team.
+                    </p>
+                  </div>
+
+                  <div className="space-y-4">
+                    {[
+                      {
+                        step: "1",
+                        title: "Create Questions",
+                        description: "Submit quiz questions through the Pro User dashboard"
+                      },
+                      {
+                        step: "2", 
+                        title: "Admin Review",
+                        description: "Our team reviews and approves quality questions"
+                      },
+                      {
+                        step: "3",
+                        title: "Earn Money",
+                        description: "Get ₹10 credited to your wallet for each approved question"
+                      },
+                      {
+                        step: "4",
+                        title: "Request Withdrawal",
+                        description: "After 100 approved questions, request withdrawal to admin"
+                      }
+                    ].map((item, index) => (
+                      <div key={index} className="flex items-start space-x-4">
+                        <div className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
+                          {item.step}
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-gray-800 dark:text-white mb-1">{item.title}</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-300">{item.description}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Right Side - Stats & Info */}
+                <div className="space-y-6">
+                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl p-6 border border-green-200 dark:border-green-700">
+                    <h4 className="text-xl font-bold text-gray-800 dark:text-white mb-4 text-center">
+                      💡 How It Works
+                    </h4>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-600 dark:text-gray-300">Per Approved Question:</span>
+                        <span className="font-bold text-green-600">₹10</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-600 dark:text-gray-300">Withdrawal Threshold:</span>
+                        <span className="font-bold text-green-600">100 Questions</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-600 dark:text-gray-300">Minimum Withdrawal:</span>
+                        <span className="font-bold text-green-600">₹1,000</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-600 dark:text-gray-300">Processing Time:</span>
+                        <span className="font-bold text-green-600">24-48 Hours</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl p-6 border border-blue-200 dark:border-blue-700">
+                    <h4 className="text-xl font-bold text-gray-800 dark:text-white mb-4 text-center">
+                      🎯 Pro User Benefits
+                    </h4>
+                    <ul className="space-y-2 text-gray-600 dark:text-gray-300">
+                      <li className="flex items-center space-x-2">
+                        <span className="text-green-500">✓</span>
+                        <span>Earn money for quality content</span>
+                      </li>
+                      <li className="flex items-center space-x-2">
+                        <span className="text-green-500">✓</span>
+                        <span>Help build the quiz community</span>
+                      </li>
+                      <li className="flex items-center space-x-2">
+                        <span className="text-green-500">✓</span>
+                        <span>Fast withdrawal processing</span>
+                      </li>
+                      <li className="flex items-center space-x-2">
+                        <span className="text-green-500">✓</span>
+                        <span>Admin-reviewed quality standards</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="text-center space-y-3">
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                      <Link
+                        href="/questions/public"
+                        className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                      >
+                        <span className="mr-2">📚</span>
+                        Browse Questions
+                      </Link>
+                      {isClient && isLoggedIn ? (
+                        <>
+                          <Link
+                            href="/pro/my-questions"
+                            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                          >
+                            <span className="mr-2">📋</span>
+                            My Questions
+                          </Link>
+                          <Link
+                            href="/pro/add-question"
+                            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                          >
+                            <span className="mr-2">📝</span>
+                            Add Questions
+                          </Link>
+                        </>
+                      ) : (
+                        <Link
+                          href="/register"
+                          className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                        >
+                          <span className="mr-2">🚀</span>
+                          Become a Pro User
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
       
       {/* Profile Completion Reward Section - Only show for logged in users with incomplete profile and free subscription */}
       {isClient && isLoggedIn && profileCompletion && profileCompletion.percentage < 100 && user?.subscriptionStatus === 'free' && (
@@ -827,7 +990,7 @@ const HomePage = () => {
             </span>
           </h2>
           <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Celebrating the previous month's top 3 performers who achieved Level 10 with ≥75% accuracy and won monthly prizes!
+            Celebrating the previous month's top 3 performers who achieved Level 10 and 110 high score quizzes with ≥75% accuracy and won monthly prizes!
           </p>
         </div>
         
@@ -886,25 +1049,25 @@ const HomePage = () => {
             </div>
             <div className="space-y-3 sm:space-y-4">
               <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
-                Only the top 1–3 ranked users in Level 10 (
+                Only the top 10 ranked users in Level 10 (
                 <span className="font-bold text-orange-600">Legend</span>) win
                 scholarships and prizes!
               </p>
               <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg sm:rounded-xl p-3 sm:p-4">
                 <div className="text-center">
                   <div className="text-2xl sm:text-3xl font-bold text-orange-600 mb-1 sm:mb-2">
-                    ₹9,999
+                    ₹{process.env.NEXT_PUBLIC_MONTHLY_REWARD_PRIZE_POOL || 10000}
                   </div>
                   <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
-                    Level 10 Top 3 prize split 3:2:1
+                    Level 10 Top 10 monthly prize pool
                   </div>
                   <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                    Monthly Top 3 at Level 10 with ≥75% accuracy win ₹9,999
+                    Monthly Top 10 at Level 10 with {process.env.NEXT_PUBLIC_MONTHLY_REWARD_QUIZ_REQUIREMENT || 220} high-score quizzes win ₹{process.env.NEXT_PUBLIC_MONTHLY_REWARD_PRIZE_POOL || 10000}
                   </div>
                 </div>
               </div>
               <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
-                Reach Level 10 with high accuracy to qualify for monthly prizes!
+                Reach Level 10 with {process.env.NEXT_PUBLIC_MONTHLY_REWARD_QUIZ_REQUIREMENT || 220} high-score quizzes to qualify for monthly prizes!
               </p>
             </div>
           </div>
@@ -962,7 +1125,7 @@ const HomePage = () => {
                   <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full"></div>
                 </div>
                 <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
-                  Compete each month for the Top 3 prize!
+                  Compete each month for the Top 10 prizes from ₹{process.env.NEXT_PUBLIC_MONTHLY_REWARD_PRIZE_POOL || 10000} pool!
                 </p>
               </div>
             </div>
@@ -982,9 +1145,7 @@ const HomePage = () => {
               </span>
             </h2>
             <p className="text-md md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Start from Level 1 (Rookie) and progress through 10 levels each
-              month. Reach (Level 10 and Minimum 110 Quizzes with ≥75% accuracy) to
-              qualify for monthly rewards!
+              Start from Level 1 (Rookie) and progress through 10 levels. Reach Level 10 ({process.env.NEXT_PUBLIC_LEVEL_10_QUIZ_REQUIREMENT || 220} total quiz attempts) and have {process.env.NEXT_PUBLIC_MONTHLY_REWARD_QUIZ_REQUIREMENT || 220} high-score quizzes to qualify for monthly rewards!
             </p>
           </div>
 
@@ -1050,7 +1211,7 @@ const HomePage = () => {
                            ₹{levelInfo ? levelInfo.prize : 0}
                          </div>
                          <div className="text-xs text-gray-600 dark:text-gray-300">
-                           Prize {level.level === 10 ? '(Monthly Top 3: ₹9,999)' : ''}
+                           Prize {level.level === 10 ? `(Monthly Top 10: ₹${process.env.NEXT_PUBLIC_MONTHLY_REWARD_PRIZE_POOL || 10000})` : ''}
                          </div>
                        </div>
                      </div>

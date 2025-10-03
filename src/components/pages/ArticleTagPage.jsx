@@ -33,17 +33,6 @@ const ArticleTagPage = ({ tagName }) => {
       setError('');
       console.log('Fetching articles for tag:', tagName, 'page:', pageNum);
       
-      // Test API connectivity first
-      try {
-        const testResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/public/articles/tag/${encodeURIComponent(tagName)}?page=${pageNum}&limit=${PAGE_LIMIT}`);
-        console.log('Direct fetch test response status:', testResponse.status);
-        if (!testResponse.ok) {
-          console.error('API request failed with status:', testResponse.status);
-        }
-      } catch (testError) {
-        console.error('API connectivity test failed:', testError);
-      }
-      
       const res = await API.getArticlesByTag(tagName, { page: pageNum, limit: PAGE_LIMIT });
       console.log('Tag articles response:', res);
       const payload = res.data || res;

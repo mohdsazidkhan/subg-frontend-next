@@ -199,6 +199,10 @@ class ApiService {
     return this.request('/api/levels/history', { params });
   }
 
+  async getMonthlyRewardInfo() {
+    return this.request('/api/levels/monthly-rewards');
+  }
+
   // ===== SEARCH ENDPOINTS =====
   async searchAll({ query = '', page = 1, limit = 12 }) {
     const searchQuery = new URLSearchParams({ query, page, limit }).toString();
@@ -471,6 +475,55 @@ class ApiService {
     });
   }
 
+  // ===== PRO USER QUESTIONS =====
+  async createUserQuestion(payload) {
+    return this.request('/api/userQuestions/create', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  }
+
+  async getCurrentMonthQuestionCount() {
+    return this.request('/api/userQuestions/current-month-count');
+  }
+
+  async getMyUserQuestions(params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    return this.request(`/api/userQuestions/mine/list?${queryString}`);
+  }
+
+  async getPublicUserQuestions(params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    return this.request(`/api/userQuestions/public/list?${queryString}`);
+  }
+
+  async answerUserQuestion(id, selectedOptionIndex) {
+    return this.request(`/api/userQuestions/${id}/answer`, {
+      method: 'POST',
+      body: JSON.stringify({ selectedOptionIndex })
+    });
+  }
+
+  async likeUserQuestion(id) {
+    return this.request(`/api/userQuestions/${id}/like`, {
+      method: 'POST'
+    });
+  }
+
+  async shareUserQuestion(id) {
+    return this.request(`/api/userQuestions/${id}/share`, {
+      method: 'POST'
+    });
+  }
+
+  async incrementUserQuestionView(id) {
+    return this.request(`/api/userQuestions/${id}/view`, { method: 'POST' });
+  }
+
+  async getUserQuestionById(id) {
+    return this.request(`/api/userQuestions/${id}`);
+  }
+
   async updateQuestion(id, questionData) {
     return this.request(`/api/admin/questions/${id}`, {
       method: 'PUT',
@@ -708,6 +761,26 @@ class ApiService {
   async deleteNotification(notificationId) {
     return this.request(`/api/student/notifications/${notificationId}`, {
       method: 'DELETE'
+    });
+  }
+
+  // ===== CONTACT ENDPOINTS =====
+  async submitContactForm(contactData) {
+    return this.request('/api/contacts', {
+      method: 'POST',
+      body: JSON.stringify(contactData)
+    });
+  }
+
+  // ===== USER WALLET =====
+  async getUserWallet(userId) {
+    return this.request(`/api/userWallet/${userId}`);
+  }
+
+  async createWithdrawRequest(payload) {
+    return this.request('/api/withdrawRequests/create', {
+      method: 'POST',
+      body: JSON.stringify(payload)
     });
   }
 }

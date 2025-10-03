@@ -69,10 +69,10 @@ const MonthlyWinnersDisplay = ({ title = "🏆 Previous Month Legends", showTitl
           </p>
           <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-yellow-200 dark:border-yellow-600">
             <div className="text-center">
-              <div className="text-xl lg:text-2xl font-bold text-yellow-600 mb-2">₹9,999</div>
+              <div className="text-xl lg:text-2xl font-bold text-yellow-600 mb-2">₹10,000</div>
               <div className="text-sm text-gray-600 dark:text-gray-300 mb-2">Monthly Prize Pool</div>
               <div className="text-xs text-gray-500 dark:text-gray-400">
-                Top 3 users at Level 10 with ≥75% accuracy win prizes in 3:2:1 ratio
+                Top 10 users at Level 10 with 330 high-score quizzes win prizes
               </div>
             </div>
           </div>
@@ -142,7 +142,7 @@ const MonthlyWinnersDisplay = ({ title = "🏆 Previous Month Legends", showTitl
                   <div className="font-semibold text-lg">{winner.userName}</div>
                   <div className="text-sm opacity-90">{winner.userEmail}</div>
                   <div className="text-xs opacity-80 mt-1">
-                    {winner.highScoreWins} wins • {winner.accuracy}% accuracy
+                    {winner.highScoreQuizzes || winner.highScoreWins} high-score quizzes • {winner.accuracy}% accuracy
                   </div>
                 </div>
               </div>

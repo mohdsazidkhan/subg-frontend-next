@@ -118,7 +118,7 @@ const AboutUs = () => {
               </div>
               <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-3">Monthly Rewards</h3>
               <p className="text-gray-600 dark:text-gray-300">
-                Monthly rewards system with ₹9,999 for Top 3 eligible users at (Level 10 and Minimum 110 Quizzes with ≥75% Accuracy).
+                Monthly rewards system with ₹{process.env.NEXT_PUBLIC_MONTHLY_REWARD_PRIZE_POOL || 10000} for Top 10 eligible users at Level 10 with {process.env.NEXT_PUBLIC_MONTHLY_REWARD_QUIZ_REQUIREMENT || 220} high-score quizzes.
               </p>
             </div>
           </div>

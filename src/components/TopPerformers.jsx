@@ -74,12 +74,12 @@ const TopPerformers = () => {
           profilePicture: u.profilePicture,
           subscriptionName: u.subscriptionName,
           level: {
-            currentLevel: u.monthly?.currentLevel || 0,
-            levelName: u.monthly?.currentLevel === 10 ? 'Legend' : getLevelName(u.monthly?.currentLevel || 0),
-            highScoreQuizzes: u.monthly?.highScoreWins || 0,
-            quizzesPlayed: u.monthly?.totalQuizAttempts || 0,
+            currentLevel: u.level?.currentLevel || 0,
+            levelName: u.level?.currentLevel === 10 ? 'Legend' : getLevelName(u.level?.currentLevel || 0),
+            highScoreQuizzes: u.level?.highScoreQuizzes || 0,
+            quizzesPlayed: u.level?.quizzesPlayed || 0,
             accuracy: u.monthly?.accuracy || 0,
-            averageScore: u.monthly?.accuracy || 0
+            averageScore: u.level?.averageScore || 0
           }
         }));
         const surroundingUsers = Array.isArray(result?.data?.surroundingUsers) ? result.data.surroundingUsers : [];

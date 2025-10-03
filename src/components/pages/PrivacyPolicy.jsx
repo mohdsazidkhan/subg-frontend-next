@@ -50,8 +50,8 @@ const PrivacyPolicy = () => (
         <li>To run quizzes, compute scores, determine level progression, and show leaderboard rankings.</li>
         <li>To process rewards, including the <strong>Monthly Rewards System</strong>:
           <ul className="list-disc pl-6 mt-1 space-y-1">
-            <li><strong>Monthly:</strong> Top 3 eligible users at (Level 10 and Minimum 110 Quizzes with ≥75% Accuracy) win ₹9,999 each</li>
-            <li><strong>Eligibility:</strong> Must reach Level 10 and minimum 110 quizzes ≥75% accuracy in the current month</li>
+            <li><strong>Monthly:</strong> Top 10 eligible users at Level 10 with {process.env.NEXT_PUBLIC_MONTHLY_REWARD_QUIZ_REQUIREMENT || 220} high-score quizzes win from ₹{process.env.NEXT_PUBLIC_MONTHLY_REWARD_PRIZE_POOL || 10000} total pool</li>
+            <li><strong>Eligibility:</strong> Must reach Level 10 and have {process.env.NEXT_PUBLIC_MONTHLY_REWARD_QUIZ_REQUIREMENT || 220} high-score quizzes (≥75% accuracy) in the current month</li>
             <li><strong>Reset:</strong> Progress and rewards reset every month on the 1st</li>
           </ul>
         </li>

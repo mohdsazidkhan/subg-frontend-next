@@ -94,20 +94,21 @@ const ProfilePage = () => {
   const fetchUserProfile = async () => {
     try {
       setLoading(true);
-      const response = await API.request('/api/student/profile');
-      setUser(response);
+      const res = await API.getProfile();
+      const payload = res?.user || res?.data?.user || res;
+      setUser(payload);
       setFormData({
-        name: response.name || '',
-        email: response.email || '',
-        phone: response.phone || '',
-        bio: response.bio || '',
-        university: response.university || '',
-        city: response.city || '',
+        name: payload?.name || '',
+        email: payload?.email || '',
+        phone: payload?.phone || '',
+        bio: payload?.bio || '',
+        university: payload?.university || '',
+        city: payload?.city || '',
         socialLinks: {
-          facebook: response.socialLinks?.facebook || '',
-          twitter: response.socialLinks?.twitter || '',
-          instagram: response.socialLinks?.instagram || '',
-          youtube: response.socialLinks?.youtube || ''
+          facebook: payload?.socialLinks?.facebook || '',
+          twitter: payload?.socialLinks?.twitter || '',
+          instagram: payload?.socialLinks?.instagram || '',
+          youtube: payload?.socialLinks?.youtube || ''
         }
       });
     } catch (error) {
@@ -166,10 +167,7 @@ const ProfilePage = () => {
 
   const handleSave = async () => {
     try {
-      await API.request('/api/student/profile', {
-        method: 'PUT',
-        body: JSON.stringify(formData)
-      });
+      await API.updateProfile(formData);
       setUser(prev => ({ ...prev, ...formData }));
       setEditing(false);
       toast.success('Profile updated successfully');

@@ -42,21 +42,21 @@ const HowItWorks = () => (
 
         <li>
           <strong>Monthly Rewards System: </strong>
-          Every month, rewards are given to the <strong>Top 3 eligible users</strong> who meet these criteria:
+          Every month, rewards are given to the <strong>Top 10 eligible users</strong> who meet these criteria:
           <ul className="list-disc list-inside ml-6 mt-2 space-y-1 text-sm text-gray-700 dark:text-gray-300">
-            <li>Reached Level 10</li>
-            <li>Played at least 110 quizzes</li>
-            <li>Maintained an accuracy of ≥75%</li>
+            <li>Reached Level 10 (330 total quiz attempts)</li>
+            <li>Have at least 330 high-score quizzes (≥75% accuracy)</li>
+            <li>Rank in Top 10 on monthly leaderboard</li>
           </ul>
           <p className="mt-2 text-sm">
-            <strong>Ranking is based on:</strong> 1) High-scoring quizzes, 2) Accuracy, 3) Total score, 4) Total quizzes played.
+            <strong>Ranking is based on:</strong> 1) Highest Average Quiz Score, 2) Highest Accuracy, 3) Total Score, 4) Total Quizzes Played.
             In case of a tie, these same metrics are used again in order as tie-breakers.
           </p>
         </li>
 
         <li>
           <strong>Result & Prize Distribution: </strong>
-          Results are declared on the <strong>last day of every month after 9:00 PM</strong>. The Top 3 winners receive their rewards within <strong>7 days</strong>.
+          Results are declared on the <strong>last day of every month after 9:00 PM</strong>. The Top 10 winners receive their rewards from ₹10,000 total pool within <strong>7 days</strong>.
         </li>
       </ol>
 

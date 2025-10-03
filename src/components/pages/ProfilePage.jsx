@@ -1674,7 +1674,7 @@ const message =
                   <div className="mb-4">
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Quiz Progress: {rewardsData.quizProgress?.current || 0} / {rewardsData.quizProgress?.required || 110}
+                        Quiz Progress: {rewardsData.quizProgress?.current || 0} / {rewardsData.quizProgress?.required || (process.env.NEXT_PUBLIC_MONTHLY_REWARD_QUIZ_REQUIREMENT || 220)}
                       </span>
                       <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
                         {Math.round(rewardsData.quizProgress?.percentage || 0)}%
@@ -1687,7 +1687,7 @@ const message =
                       ></div>
                     </div>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                      Complete (Level 10 and Minimum 110 Quizzes with ≥75% Accuracy) to unlock monthly rewards
+                      Complete Level 10 with {process.env.NEXT_PUBLIC_MONTHLY_REWARD_QUIZ_REQUIREMENT || 220} high-score quizzes to unlock monthly rewards
                     </p>
                   </div>
 
@@ -1708,32 +1708,67 @@ const message =
                 </div>
               </div>
             )}
-            {/* Monthly Top 3 Info */}
+            {/* Monthly Top 10 Info */}
             <div className="my-4 sm:my-6">
               <h4 className="text-lg lg:text-xl font-semibold text-gray-800 dark:text-white mb-3 sm:mb-4 flex items-center gap-2">
                 <span className="text-xl sm:text-2xl">🏆</span>
-                Monthly Top 3 Rewards
+                Monthly Top 10 Rewards
               </h4>
               <div className="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4">
                 <div className="text-center">
                   <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
-                    Every month, the top 3 users with Level 10 and ≥75% accuracy win prizes in 3:2:1 ratio from ₹9,999 total pool!
+                    Every month, the top 10 users with Level 10 and {process.env.NEXT_PUBLIC_MONTHLY_REWARD_QUIZ_REQUIREMENT || 220} high-score quizzes win prizes from ₹{process.env.NEXT_PUBLIC_MONTHLY_REWARD_PRIZE_POOL || 10000} total pool!
                   </p>
-                  <div className="grid grid-cols-3 gap-4 text-center">
-                    <div className="bg-yellow-100 dark:bg-yellow-800/30 rounded-lg p-3">
-                      <div className="text-2xl mb-1">🥇</div>
-                      <div className="text-xs font-semibold text-yellow-800 dark:text-yellow-200">1st Place</div>
-                      <div className="text-lg font-bold text-yellow-700 dark:text-yellow-300">₹4,999</div>
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-center">
+                    <div className="bg-yellow-100 dark:bg-yellow-800/30 rounded-lg p-2">
+                      <div className="text-lg mb-1">🥇</div>
+                      <div className="text-xs font-semibold text-yellow-800 dark:text-yellow-200">1st</div>
+                      <div className="text-sm font-bold text-yellow-700 dark:text-yellow-300">₹2,500</div>
                     </div>
-                    <div className="bg-gray-100 dark:bg-gray-800/30 rounded-lg p-3">
-                      <div className="text-2xl mb-1">🥈</div>
-                      <div className="text-xs font-semibold text-gray-800 dark:text-gray-200">2nd Place</div>
-                      <div className="text-lg font-bold text-gray-700 dark:text-gray-300">₹3,333</div>
+                    <div className="bg-gray-100 dark:bg-gray-800/30 rounded-lg p-2">
+                      <div className="text-lg mb-1">🥈</div>
+                      <div className="text-xs font-semibold text-gray-800 dark:text-gray-200">2nd</div>
+                      <div className="text-sm font-bold text-gray-700 dark:text-gray-300">₹2,000</div>
                     </div>
-                    <div className="bg-orange-100 dark:bg-orange-800/30 rounded-lg p-3">
-                      <div className="text-2xl mb-1">🥉</div>
-                      <div className="text-xs font-semibold text-orange-800 dark:text-orange-200">3rd Place</div>
-                      <div className="text-lg font-bold text-orange-700 dark:text-orange-300">₹1,667</div>
+                    <div className="bg-orange-100 dark:bg-orange-800/30 rounded-lg p-2">
+                      <div className="text-lg mb-1">🥉</div>
+                      <div className="text-xs font-semibold text-orange-800 dark:text-orange-200">3rd</div>
+                      <div className="text-sm font-bold text-orange-700 dark:text-orange-300">₹1,500</div>
+                    </div>
+                    <div className="bg-blue-100 dark:bg-blue-800/30 rounded-lg p-2">
+                      <div className="text-lg mb-1">🏅</div>
+                      <div className="text-xs font-semibold text-blue-800 dark:text-blue-200">4th</div>
+                      <div className="text-sm font-bold text-blue-700 dark:text-blue-300">₹1,200</div>
+                    </div>
+                    <div className="bg-green-100 dark:bg-green-800/30 rounded-lg p-2">
+                      <div className="text-lg mb-1">🏅</div>
+                      <div className="text-xs font-semibold text-green-800 dark:text-green-200">5th</div>
+                      <div className="text-sm font-bold text-green-700 dark:text-green-300">₹800</div>
+                    </div>
+                    <div className="bg-purple-100 dark:bg-purple-800/30 rounded-lg p-2">
+                      <div className="text-lg mb-1">🏅</div>
+                      <div className="text-xs font-semibold text-purple-800 dark:text-purple-200">6th</div>
+                      <div className="text-sm font-bold text-purple-700 dark:text-purple-300">₹600</div>
+                    </div>
+                    <div className="bg-pink-100 dark:bg-pink-800/30 rounded-lg p-2">
+                      <div className="text-lg mb-1">🏅</div>
+                      <div className="text-xs font-semibold text-pink-800 dark:text-pink-200">7th</div>
+                      <div className="text-sm font-bold text-pink-700 dark:text-pink-300">₹500</div>
+                    </div>
+                    <div className="bg-indigo-100 dark:bg-indigo-800/30 rounded-lg p-2">
+                      <div className="text-lg mb-1">🏅</div>
+                      <div className="text-xs font-semibold text-indigo-800 dark:text-indigo-200">8th</div>
+                      <div className="text-sm font-bold text-indigo-700 dark:text-indigo-300">₹400</div>
+                    </div>
+                    <div className="bg-teal-100 dark:bg-teal-800/30 rounded-lg p-2">
+                      <div className="text-lg mb-1">🏅</div>
+                      <div className="text-xs font-semibold text-teal-800 dark:text-teal-200">9th</div>
+                      <div className="text-sm font-bold text-teal-700 dark:text-teal-300">₹350</div>
+                    </div>
+                    <div className="bg-red-100 dark:bg-red-800/30 rounded-lg p-2">
+                      <div className="text-lg mb-1">🏅</div>
+                      <div className="text-xs font-semibold text-red-800 dark:text-red-200">10th</div>
+                      <div className="text-sm font-bold text-red-700 dark:text-red-300">₹150</div>
                     </div>
                   </div>
                 </div>

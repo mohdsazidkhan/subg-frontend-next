@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaFilter, FaDownload, FaEye, FaEyeSlash, FaChevronLeft, FaChevronRight, FaRupeeSign, FaCheckCircle, FaTimesCircle, FaClock, FaExclamationTriangle, FaCreditCard, FaReceipt, FaTag, FaCalendar, FaGlobe, FaSearch, FaTimes } from 'react-icons/fa';
-import apiService from '../lib/api';
+import API from '../lib/api';
 
 const PaymentTransactions = () => {
   const [transactions, setTransactions] = useState([]);
@@ -26,48 +26,46 @@ const PaymentTransactions = () => {
     try {
       setLoading(true);
       setError(null);
-      
-      // Mock transactions data since the endpoint might not exist yet
-      const mockTransactions = [
-        {
-          id: 'txn_001',
-          amount: 299,
-          currency: 'INR',
-          status: 'success',
-          type: 'subscription',
-          description: 'Basic Plan Subscription',
-          paymentMethod: 'UPI',
-          transactionId: 'UPI123456789',
-          createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          updatedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          id: 'txn_002',
-          amount: 599,
-          currency: 'INR',
-          status: 'success',
-          type: 'subscription',
-          description: 'Premium Plan Subscription',
-          paymentMethod: 'Credit Card',
-          transactionId: 'CC987654321',
-          createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-          updatedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString()
-        }
-      ];
-      
+      // Try API first, fallback to mock
+      try {
+        const res = await API.getUserPaymentTransactions({
+          month: filters.month,
+          year: filters.year,
+          type: filters.type !== 'all' ? filters.type : undefined,
+          status: filters.status !== 'all' ? filters.status : undefined,
+          page: filters.page,
+          limit: filters.limit
+        });
+        const payload = res?.data || res;
+        const items = payload.items || payload.transactions || payload.attempts || [];
+        setTransactions(items);
+        setPagination({
+          page: payload.page || payload.pagination?.page || filters.page,
+          limit: payload.limit || payload.pagination?.limit || filters.limit,
+          total: payload.total || payload.pagination?.total || items.length,
+          totalPages: payload.totalPages || payload.pagination?.totalPages || 1,
+          currentPage: payload.page || payload.pagination?.page || filters.page,
+          hasPrev: (payload.page || 1) > 1,
+          hasNext: (payload.page || 1) < (payload.totalPages || 1),
+          totalCount: payload.total || items.length
+        });
+        setSummary(payload.summary || {});
+      } catch (apiErr) {
+        // Fallback mock on error
+        const mockTransactions = [];
       setTransactions(mockTransactions);
       setPagination({
         page: 1,
         limit: 10,
         total: mockTransactions.length,
-        totalPages: 1
-      });
-      setSummary({
-        totalAmount: 898,
-        totalTransactions: mockTransactions.length,
-        successfulTransactions: mockTransactions.filter(t => t.status === 'success').length,
-        failedTransactions: 0
-      });
+          totalPages: 1,
+          currentPage: 1,
+          hasPrev: false,
+          hasNext: false,
+          totalCount: mockTransactions.length
+        });
+        setSummary({});
+      }
     } catch (err) {
       setError('Error fetching transactions: ' + err.message);
     } finally {
